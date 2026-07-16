@@ -1,0 +1,274 @@
+package pastoralsocial.modelo;
+
+import java.util.Date;
+import javax.persistence.*;
+
+/**
+ * Entity implementation class for Entity: IntegranteFamiliar
+ *
+ */
+@Entity
+@Table(name = "integranteFamiliar")
+public class IntegranteFamiliar {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idIntegrante")
+	private int idIntegrante;
+
+	@Column(name = "identificacion", nullable = false)
+	private String identificacion;
+
+	@Column(name = "tipoIdentificacion", nullable = false)
+	private String tipoIdentificacion;
+
+	@Column(name = "nombre", nullable = false)
+	private String nombre;
+
+	@Column(name = "apellidos", nullable = false)
+	private String apellidos;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaNacimiento")
+	private Date fechaNacimiento;
+
+	@Column(name = "telefono")
+	private String telefono;
+
+	@Column(name = "correoElectronico")
+	private String correoElectronico;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "genero")
+	private Genero genero;
+
+	@Column(name = "jefeHogar", nullable = false)
+	private boolean jefeHogar;
+
+	@Column(name = "parentesco")
+	private String parentesco;
+
+	@Column(name = "nivelEducativo")
+	private String nivelEducativo;
+
+	@Column(name = "seguro")
+	private String seguro;
+
+	@Column(name = "pais")
+	private String pais;
+
+	@Column(name = "provincia")
+	private String provincia;
+
+	@Column(name = "canton")
+	private String canton;
+
+	@Column(name = "distrito")
+	private String distrito;
+
+	@Column(name = "direccion")
+	private String direccion;
+
+	@Column(name = "estado", nullable = false)
+	private boolean estado;
+
+	@ManyToOne
+	@JoinColumn(name = "idCasoSocial", nullable = false)
+	private CasoSocial casoSocial;
+
+	public IntegranteFamiliar() {
+	}
+
+	public IntegranteFamiliar(String identificacion, String tipoIdentificacion, String nombre, String apellidos,
+			Date fechaNacimiento, String telefono, String correoElectronico, Genero genero, boolean jefeHogar,
+			String parentesco, String nivelEducativo, String seguro, String pais, String provincia, String canton,
+			String distrito, String direccion, boolean estado, CasoSocial casoSocial) {
+
+		this.identificacion = identificacion;
+		this.tipoIdentificacion = tipoIdentificacion;
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.fechaNacimiento = fechaNacimiento;
+		this.telefono = telefono;
+		this.correoElectronico = correoElectronico;
+		this.genero = genero;
+		this.jefeHogar = jefeHogar;
+		this.parentesco = parentesco;
+		this.nivelEducativo = nivelEducativo;
+		this.seguro = seguro;
+		this.pais = pais;
+		this.provincia = provincia;
+		this.canton = canton;
+		this.distrito = distrito;
+		this.direccion = direccion;
+		this.estado = estado;
+
+		this.casoSocial = casoSocial;
+	}
+
+	public int getIdIntegrante() {
+		return idIntegrante;
+	}
+
+	public void setIdIntegrante(int idIntegrante) {
+		this.idIntegrante = idIntegrante;
+	}
+
+	public String getIdentificacion() {
+		return identificacion;
+	}
+
+	public void setIdentificacion(String identificacion) {
+		this.identificacion = identificacion;
+	}
+
+	public String getTipoIdentificacion() {
+		return tipoIdentificacion;
+	}
+
+	public void setTipoIdentificacion(String tipoIdentificacion) {
+		this.tipoIdentificacion = tipoIdentificacion;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getApellidos() {
+		return apellidos;
+	}
+
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	public Date getFechaNacimiento() {
+		return fechaNacimiento;
+	}
+
+	public void setFechaNacimiento(Date fechaNacimiento) {
+		this.fechaNacimiento = fechaNacimiento;
+	}
+
+	public String getTelefono() {
+		return telefono;
+	}
+
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+
+	public String getCorreoElectronico() {
+		return correoElectronico;
+	}
+
+	public void setCorreoElectronico(String correoElectronico) {
+		this.correoElectronico = correoElectronico;
+	}
+
+	public Genero getGenero() {
+		return genero;
+	}
+
+	public void setGenero(Genero genero) {
+		this.genero = genero;
+	}
+
+	public boolean isJefeHogar() {
+		return jefeHogar;
+	}
+
+	public void setJefeHogar(boolean jefeHogar) {
+		this.jefeHogar = jefeHogar;
+	}
+
+	public String getParentesco() {
+		return parentesco;
+	}
+
+	public void setParentesco(String parentesco) {
+		this.parentesco = parentesco;
+	}
+
+	public String getNivelEducativo() {
+		return nivelEducativo;
+	}
+
+	public void setNivelEducativo(String nivelEducativo) {
+		this.nivelEducativo = nivelEducativo;
+	}
+
+	public String getSeguro() {
+		return seguro;
+	}
+
+	public void setSeguro(String seguro) {
+		this.seguro = seguro;
+	}
+
+	public String getPais() {
+		return pais;
+	}
+
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+
+	public String getProvincia() {
+		return provincia;
+	}
+
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+
+	public String getCanton() {
+		return canton;
+	}
+
+	public void setCanton(String canton) {
+		this.canton = canton;
+	}
+
+	public String getDistrito() {
+		return distrito;
+	}
+
+	public void setDistrito(String distrito) {
+		this.distrito = distrito;
+	}
+
+	public String getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(String direccion) {
+		this.direccion = direccion;
+	}
+
+	public boolean isEstado() {
+		return estado;
+	}
+
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
+
+	public CasoSocial getCasoSocial() {
+		return casoSocial;
+	}
+
+	public void setCasoSocial(CasoSocial casoSocial) {
+		this.casoSocial = casoSocial;
+	}
+
+	@Override
+	public String toString() {
+		return nombre + " " + apellidos;
+	}
+
+}
