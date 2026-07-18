@@ -149,4 +149,27 @@ public class CasoSocialDAO implements DAO<CasoSocial> {
 
 	}
 
+	public List<CasoSocial> buscarPorUsuario(Usuario usuario) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+			TypedQuery<CasoSocial> query = em.createQuery(
+					"SELECT c FROM CasoSocial c " + "WHERE c.usuario = :usuario " + "ORDER BY c.fechaInicio DESC",
+					CasoSocial.class);
+
+			query.setParameter("usuario", usuario);
+
+			return query.getResultList();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Error al buscar los casos del usuario.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
 }
