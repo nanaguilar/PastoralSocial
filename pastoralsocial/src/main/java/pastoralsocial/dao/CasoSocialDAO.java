@@ -7,6 +7,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 
 import pastoralsocial.modelo.CasoSocial;
+import pastoralsocial.modelo.Usuario;
 import pastoralsocial.util.JPAUtil;
 
 public class CasoSocialDAO implements DAO<CasoSocial> {

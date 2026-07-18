@@ -65,7 +65,7 @@ public class UsuarioController {
 			throw new IllegalArgumentException("Debe ingresar el nombre de usuario.");
 		}
 
-		if (password == null || password.isBlank()) {
+		if (password == null || password.trim().isEmpty()) {
 			throw new IllegalArgumentException("Debe ingresar la contraseña.");
 		}
 
@@ -96,7 +96,7 @@ public class UsuarioController {
 			throw new IllegalArgumentException("El nombre de usuario es obligatorio.");
 		}
 
-		if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+		if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
 			throw new IllegalArgumentException("La contraseña es obligatoria.");
 		}
 

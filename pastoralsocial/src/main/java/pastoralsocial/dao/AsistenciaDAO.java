@@ -149,27 +149,4 @@ public class AsistenciaDAO implements DAO<Asistencia> {
 
 	}
 
-	public List<Asistencia> buscarPorCasoSocial(CasoSocial casoSocial) {
-
-		EntityManager em = JPAUtil.getEntityManager();
-
-		try {
-			TypedQuery<Asistencia> query = em.createQuery("SELECT a FROM Asistencia a "
-					+ "WHERE a.casoSocial = :casoSocial " + "ORDER BY a.fecha DESC, a.idAsistencia DESC",
-					Asistencia.class);
-
-			query.setParameter("casoSocial", casoSocial);
-
-			return query.getResultList();
-
-		} catch (Exception e) {
-			throw new RuntimeException("Error al buscar las asistencias del caso social.", e);
-
-		} finally {
-			em.close();
-
-		}
-
-	}
-
 }
