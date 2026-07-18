@@ -1,0 +1,152 @@
+package pastoralsocial.dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+
+import pastoralsocial.modelo.CasoSocial;
+import pastoralsocial.modelo.IntegranteFamiliar;
+import pastoralsocial.util.JPAUtil;
+
+public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
+
+	@Override
+	public List<IntegranteFamiliar> getAll() {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+			TypedQuery<IntegranteFamiliar> query = em.createQuery("SELECT i FROM IntegranteFamiliar i",
+					IntegranteFamiliar.class);
+
+			return query.getResultList();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Error al obtener los integrantes familiares.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+	@Override
+	public IntegranteFamiliar getById(int id) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+			return em.find(IntegranteFamiliar.class, id);
+
+		} catch (Exception e) {
+			throw new RuntimeException("Error al buscar el integrante familiar.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+	@Override
+	public void save(IntegranteFamiliar integrante) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+		EntityTransaction tx = em.getTransaction();
+
+		try {
+			tx.begin();
+			em.persist(integrante);
+			tx.commit();
+
+		} catch (Exception e) {
+			if (tx.isActive()) {
+				tx.rollback();
+
+			}
+			throw new RuntimeException("Error al guardar el integrante familiar.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+	@Override
+	public void update(IntegranteFamiliar integrante) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+		EntityTransaction tx = em.getTransaction();
+
+		try {
+			tx.begin();
+			em.merge(integrante);
+			tx.commit();
+
+		} catch (Exception e) {
+			if (tx.isActive()) {
+				tx.rollback();
+
+			}
+			throw new RuntimeException("Error al actualizar el integrante familiar.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+	@Override
+	public void delete(IntegranteFamiliar integrante) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+		EntityTransaction tx = em.getTransaction();
+
+		try {
+			tx.begin();
+			integrante = em.merge(integrante);
+			em.remove(integrante);
+			tx.commit();
+
+		} catch (Exception e) {
+			if (tx.isActive()) {
+				tx.rollback();
+
+			}
+			throw new RuntimeException("Error al eliminar el integrante familiar.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+	public List<IntegranteFamiliar> buscarPorCasoSocial(CasoSocial casoSocial) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+			TypedQuery<IntegranteFamiliar> query = em.createQuery("SELECT i FROM IntegranteFamiliar i "
+					+ "WHERE i.casoSocial = :casoSocial " + "ORDER BY i.nombre, i.apellidos", IntegranteFamiliar.class);
+
+			query.setParameter("casoSocial", casoSocial);
+
+			return query.getResultList();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Error al buscar los integrantes del caso social.", e);
+
+		} finally {
+			em.close();
+
+		}
+
+	}
+
+}
