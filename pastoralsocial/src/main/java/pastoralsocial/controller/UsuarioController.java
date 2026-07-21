@@ -28,6 +28,7 @@ public class UsuarioController {
 	public void registrar(Usuario usuario) {
 
 		validarUsuario(usuario);
+		validarIdentificacionDuplicada(usuario);
 
 		if (usuarioDAO.buscarPorUsername(usuario.getUsername()) != null) {
 			throw new IllegalArgumentException("El nombre de usuario ya se encuentra registrado.");
@@ -39,6 +40,7 @@ public class UsuarioController {
 	public void actualizar(Usuario usuario) {
 
 		validarUsuario(usuario);
+		validarIdentificacionDuplicada(usuario);
 
 		Usuario usuarioExistente = usuarioDAO.buscarPorUsername(usuario.getUsername());
 
@@ -62,16 +64,19 @@ public class UsuarioController {
 	public Usuario login(String username, String password) {
 
 		if (username == null || username.trim().isEmpty()) {
+
 			throw new IllegalArgumentException("Debe ingresar el nombre de usuario.");
 		}
 
 		if (password == null || password.trim().isEmpty()) {
+
 			throw new IllegalArgumentException("Debe ingresar la contraseña.");
 		}
 
 		Usuario usuario = usuarioDAO.login(username.trim(), password);
 
 		if (usuario == null) {
+
 			throw new IllegalArgumentException("Usuario o contraseña incorrectos.");
 		}
 
@@ -105,4 +110,90 @@ public class UsuarioController {
 		}
 	}
 
+	public void cambiarEstado(Usuario usuario, Usuario usuarioActual) {
+
+		if (usuario == null) {
+
+			throw new IllegalArgumentException("Debe seleccionar un usuario.");
+		}
+
+		if (usuarioActual == null) {
+
+			throw new IllegalArgumentException("No se pudo identificar al usuario autenticado.");
+		}
+
+		if (usuario.getIdUsuario() == usuarioActual.getIdUsuario() && usuario.getEstado()) {
+
+			throw new IllegalArgumentException(
+					"No puede desactivar su propio usuario mientras mantiene una sesión activa.");
+		}
+
+		usuario.setEstado(!usuario.getEstado());
+
+		usuarioDAO.update(usuario);
+	}
+
+	private void validarIdentificacionDuplicada(Usuario usuario) {
+
+		Usuario existente = usuarioDAO.buscarPorIdentificacion(usuario.getIdentificacion());
+
+		if (existente != null && existente.getIdUsuario() != usuario.getIdUsuario()) {
+
+			throw new IllegalArgumentException("Ya existe un usuario registrado con esta identificación.");
+		}
+	}
+
+	public Usuario buscarPorCorreo(String correoElectronico) {
+
+		if (correoElectronico == null || correoElectronico.trim().isEmpty()) {
+
+			throw new IllegalArgumentException("El correo electrónico es obligatorio.");
+		}
+
+		Usuario usuario = usuarioDAO.buscarPorCorreo(correoElectronico.trim());
+
+		if (usuario == null) {
+
+			throw new IllegalArgumentException("No existe una cuenta asociada a este correo electrónico.");
+		}
+
+		if (!usuario.getEstado()) {
+
+			throw new IllegalArgumentException("La cuenta asociada a este correo se encuentra inactiva.");
+		}
+
+		return usuario;
+	}
+
+	public void restablecerContrasena(Usuario usuario, String nuevaContrasena, String confirmarContrasena) {
+
+		if (usuario == null) {
+
+			throw new IllegalArgumentException("No se pudo identificar al usuario.");
+		}
+
+		if (!usuario.getEstado()) {
+
+			throw new IllegalArgumentException("No es posible restablecer la contraseña de un usuario inactivo.");
+		}
+
+		if (nuevaContrasena == null || nuevaContrasena.trim().isEmpty()) {
+
+			throw new IllegalArgumentException("La nueva contraseña es obligatoria.");
+		}
+
+		if (confirmarContrasena == null || confirmarContrasena.trim().isEmpty()) {
+
+			throw new IllegalArgumentException("Debe confirmar la nueva contraseña.");
+		}
+
+		if (!nuevaContrasena.equals(confirmarContrasena)) {
+
+			throw new IllegalArgumentException("Las contraseñas no coinciden.");
+		}
+
+		usuario.setPassword(nuevaContrasena);
+
+		usuarioDAO.update(usuario);
+	}
 }

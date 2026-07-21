@@ -126,6 +126,49 @@ public class CasoSocialDAO implements DAO<CasoSocial> {
 
 	}
 
+	public String generarSiguienteNumeroFicha() {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<String> query = em.createQuery(
+					"SELECT c.numeroFicha FROM CasoSocial c " + "WHERE c.numeroFicha LIKE 'CS-%'", String.class);
+
+			List<String> fichas = query.getResultList();
+
+			int mayor = 0;
+
+			for (String ficha : fichas) {
+
+				if (ficha != null && ficha.startsWith("CS-")) {
+
+					try {
+
+						int numero = Integer.parseInt(ficha.substring(3));
+
+						if (numero > mayor) {
+
+							mayor = numero;
+						}
+
+					} catch (NumberFormatException e) {
+					}
+				}
+			}
+
+			return String.format("CS-%03d", mayor + 1);
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al generar el número de ficha.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
 	public CasoSocial buscarPorNumeroFicha(String numeroFicha) {
 
 		EntityManager em = JPAUtil.getEntityManager();
@@ -173,4 +216,31 @@ public class CasoSocialDAO implements DAO<CasoSocial> {
 
 	}
 
+	public List<CasoSocial> buscar(String texto) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<CasoSocial> query = em.createQuery(
+					"SELECT c FROM CasoSocial c " + "LEFT JOIN c.usuario u " + "WHERE LOWER(c.numeroFicha) LIKE :texto "
+							+ "OR LOWER(c.parroquia) LIKE :texto " + "OR LOWER(c.sectorFilial) LIKE :texto "
+							+ "OR LOWER(c.provincia) LIKE :texto " + "OR LOWER(c.canton) LIKE :texto "
+							+ "OR LOWER(c.distrito) LIKE :texto " + "OR LOWER(u.nombre) LIKE :texto "
+							+ "OR LOWER(u.apellidos) LIKE :texto " + "ORDER BY c.fechaInicio DESC",
+					CasoSocial.class);
+
+			query.setParameter("texto", "%" + texto.toLowerCase() + "%");
+
+			return query.getResultList();
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al buscar los casos sociales.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
 }

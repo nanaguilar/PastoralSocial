@@ -30,6 +30,8 @@ public class IntegranteFamiliarController {
 	public void registrar(IntegranteFamiliar integrante) {
 
 		validar(integrante);
+		validarIdentificacionDuplicada(integrante);
+		validarJefeHogar(integrante);
 
 		integranteFamiliarDAO.save(integrante);
 	}
@@ -37,6 +39,8 @@ public class IntegranteFamiliarController {
 	public void actualizar(IntegranteFamiliar integrante) {
 
 		validar(integrante);
+		validarIdentificacionDuplicada(integrante);
+		validarJefeHogar(integrante);
 
 		integranteFamiliarDAO.update(integrante);
 	}
@@ -83,6 +87,33 @@ public class IntegranteFamiliarController {
 
 		if (integrante.getCasoSocial() == null) {
 			throw new IllegalArgumentException("Debe seleccionar un caso social.");
+		}
+	}
+
+	private void validarIdentificacionDuplicada(IntegranteFamiliar integrante) {
+
+		IntegranteFamiliar existente = integranteFamiliarDAO.buscarPorIdentificacion(integrante.getIdentificacion());
+
+		if (existente != null && existente.getIdIntegrante() != integrante.getIdIntegrante()) {
+
+			throw new IllegalArgumentException("Ya existe un integrante registrado con esta identificación.");
+		}
+	}
+
+	private void validarJefeHogar(IntegranteFamiliar integrante) {
+
+		if (!integrante.isJefeHogar() || !integrante.isEstado()) {
+
+			return;
+		}
+
+		IntegranteFamiliar jefeActual = integranteFamiliarDAO.buscarJefeHogarActivo(integrante.getCasoSocial());
+
+		if (jefeActual != null && jefeActual.getIdIntegrante() != integrante.getIdIntegrante()) {
+
+			throw new IllegalArgumentException(
+					"El caso " + integrante.getCasoSocial().getNumeroFicha() + " ya posee un jefe de hogar activo: "
+							+ jefeActual.getNombre() + " " + jefeActual.getApellidos() + ".");
 		}
 	}
 

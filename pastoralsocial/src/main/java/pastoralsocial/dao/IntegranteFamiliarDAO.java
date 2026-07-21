@@ -149,4 +149,48 @@ public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
 
 	}
 
+	public IntegranteFamiliar buscarPorIdentificacion(String identificacion) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<IntegranteFamiliar> query = em.createQuery(
+					"SELECT i FROM IntegranteFamiliar i WHERE LOWER(i.identificacion) = LOWER(:identificacion)",
+					IntegranteFamiliar.class);
+
+			query.setParameter("identificacion", identificacion.trim());
+
+			List<IntegranteFamiliar> resultados = query.getResultList();
+
+			return resultados.isEmpty() ? null : resultados.get(0);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
+	public IntegranteFamiliar buscarJefeHogarActivo(CasoSocial casoSocial) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<IntegranteFamiliar> query = em.createQuery("SELECT i FROM IntegranteFamiliar i "
+					+ "WHERE i.casoSocial = :casoSocial " + "AND i.jefeHogar = true " + "AND i.estado = true",
+					IntegranteFamiliar.class);
+
+			query.setParameter("casoSocial", casoSocial);
+
+			List<IntegranteFamiliar> resultados = query.getResultList();
+
+			return resultados.isEmpty() ? null : resultados.get(0);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
 }

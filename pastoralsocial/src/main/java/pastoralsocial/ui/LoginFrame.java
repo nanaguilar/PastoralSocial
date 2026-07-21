@@ -46,21 +46,64 @@ public class LoginFrame extends JFrame {
 	private void iniciarSesion() {
 
 		try {
-			String username = txtUsuario.getText();
+			String username = txtUsuario.getText().trim();
 			String password = txtPassword.getText();
 
 			Usuario usuario = usuarioController.login(username, password);
 
-			JOptionPane.showMessageDialog(this, "Bienvenido(a), " + usuario.getNombre() + " " + usuario.getApellidos(),
-					"Inicio de sesión", JOptionPane.INFORMATION_MESSAGE);
+			if (usuario == null) {
+				JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Inicio de sesión",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			if (usuario.getRol() == null) {
+				JOptionPane.showMessageDialog(this, "El usuario no tiene un rol asignado.", "Acceso denegado",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			String nombreRol = usuario.getRol().getNombre();
+
+			if ("Administrador".equalsIgnoreCase(nombreRol)) {
+
+				MenuPrincipalAdminFrame menuAdmin = new MenuPrincipalAdminFrame(usuario);
+
+				menuAdmin.setVisible(true);
+				dispose();
+
+			} else if ("Trabajador Social".equalsIgnoreCase(nombreRol)) {
+
+				MenuPrincipalTrabajadorSocialFrame menuTrabajadorSocial = new MenuPrincipalTrabajadorSocialFrame(
+						usuario);
+
+				menuTrabajadorSocial.setVisible(true);
+				dispose();
+
+			} else if ("Coordinador".equalsIgnoreCase(nombreRol)) {
+
+				MenuPrincipalCoordinadorFrame menuCoordinador = new MenuPrincipalCoordinadorFrame(usuario);
+
+				menuCoordinador.setVisible(true);
+				dispose();
+
+			} else {
+
+				JOptionPane.showMessageDialog(this,
+						"El rol '" + nombreRol + "' no tiene acceso configurado en el sistema.", "Acceso denegado",
+						JOptionPane.WARNING_MESSAGE);
+			}
 
 		} catch (IllegalArgumentException e) {
+
 			JOptionPane.showMessageDialog(this, e.getMessage(), "Inicio de sesión", JOptionPane.WARNING_MESSAGE);
 
 		} catch (Exception e) {
+
+			e.printStackTrace();
+
 			JOptionPane.showMessageDialog(this, "No fue posible iniciar sesión.", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-
 	}
 
 	/**
@@ -70,6 +113,7 @@ public class LoginFrame extends JFrame {
 
 		usuarioController = new UsuarioController();
 
+		setTitle("SIGCAS - Sistema de Gestión de Asistencia Social");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		setBounds(100, 100, 1000, 600);

@@ -20,33 +20,42 @@ public class CasoSocialController {
 
 	public CasoSocial buscarPorId(int idCasoSocial) {
 
-		if (idCasoSocial <= 0) {
-			throw new IllegalArgumentException("El identificador del caso social es inválido.");
-		}
-
 		return casoSocialDAO.getById(idCasoSocial);
 	}
 
 	public void registrar(CasoSocial casoSocial) {
-		validar(casoSocial);
 
-		if (casoSocialDAO.buscarPorNumeroFicha(casoSocial.getNumeroFicha()) != null) {
-			throw new IllegalArgumentException("El número de ficha ya se encuentra registrado.");
+		if (casoSocial == null) {
+
+			throw new IllegalArgumentException("La información del caso social es obligatoria.");
 		}
+
+		String numeroFicha = casoSocialDAO.generarSiguienteNumeroFicha();
+
+		casoSocial.setNumeroFicha(numeroFicha);
+
+		validar(casoSocial);
 
 		casoSocialDAO.save(casoSocial);
 	}
 
 	public void actualizar(CasoSocial casoSocial) {
 
-		validar(casoSocial);
+		if (casoSocial == null) {
 
-		CasoSocial casoExistente = casoSocialDAO.buscarPorNumeroFicha(casoSocial.getNumeroFicha());
-
-		if (casoExistente != null && casoExistente.getIdCasoSocial() != casoSocial.getIdCasoSocial()) {
-
-			throw new IllegalArgumentException("El número de ficha ya se encuentra registrado.");
+			throw new IllegalArgumentException("La información del caso social es obligatoria.");
 		}
+
+		CasoSocial casoOriginal = casoSocialDAO.getById(casoSocial.getIdCasoSocial());
+
+		if (casoOriginal == null) {
+
+			throw new IllegalArgumentException("El caso social no existe.");
+		}
+
+		casoSocial.setNumeroFicha(casoOriginal.getNumeroFicha());
+
+		validar(casoSocial);
 
 		casoSocialDAO.update(casoSocial);
 	}
@@ -78,15 +87,16 @@ public class CasoSocialController {
 		return casoSocialDAO.buscarPorUsuario(usuario);
 	}
 
+	public List<CasoSocial> buscar(String texto) {
+
+		if (texto == null || texto.trim().isEmpty()) {
+			return casoSocialDAO.getAll();
+		}
+
+		return casoSocialDAO.buscar(texto.trim());
+	}
+
 	private void validar(CasoSocial casoSocial) {
-
-		if (casoSocial == null) {
-			throw new IllegalArgumentException("La información del caso social es obligatoria.");
-		}
-
-		if (casoSocial.getNumeroFicha() == null || casoSocial.getNumeroFicha().trim().isEmpty()) {
-			throw new IllegalArgumentException("El número de ficha es obligatorio.");
-		}
 
 		if (casoSocial.getFechaInicio() == null) {
 			throw new IllegalArgumentException("La fecha de inicio es obligatoria.");

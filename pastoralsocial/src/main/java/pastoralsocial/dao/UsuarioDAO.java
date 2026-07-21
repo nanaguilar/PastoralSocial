@@ -173,4 +173,49 @@ public class UsuarioDAO implements DAO<Usuario> {
 
 	}
 
+	public Usuario buscarPorIdentificacion(String identificacion) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Usuario> query = em.createQuery(
+					"SELECT u FROM Usuario u WHERE LOWER(u.identificacion) = LOWER(:identificacion)", Usuario.class);
+
+			query.setParameter("identificacion", identificacion.trim());
+
+			List<Usuario> resultados = query.getResultList();
+
+			return resultados.isEmpty() ? null : resultados.get(0);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
+	public Usuario buscarPorCorreo(String correoElectronico) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Usuario> query = em.createQuery(
+					"SELECT u FROM Usuario u " + "WHERE LOWER(u.correoElectronico) = LOWER(:correo)", Usuario.class);
+
+			query.setParameter("correo", correoElectronico.trim());
+
+			List<Usuario> resultados = query.getResultList();
+
+			return resultados.isEmpty() ? null : resultados.get(0);
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al buscar el usuario por correo electrónico.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
 }
