@@ -1,0 +1,63 @@
+PASTORAL SOCIAL APP
+===================
+
+COMO ABRIRLO EN ECLIPSE
+-----------------------
+1. File > Import... > General > Existing Projects into Workspace
+2. Select archive file: elegir este mismo ZIP
+   (o descomprimirlo primero y usar "Select root directory")
+3. Finish
+
+El proyecto ya trae el .classpath configurado con los 12 jars de la carpeta lib,
+asi que no hay que agregar librerias a mano. Si Eclipse muestra errores rojos
+apenas lo importa, hacer clic derecho sobre el proyecto > Refresh (F5).
+
+
+PRIMER PASO OBLIGATORIO: LA CONTRASENA DE MYSQL
+-----------------------------------------------
+El archivo src/main/resources/META-INF/persistence.xml viene con la contrasena
+VACIA a proposito. Antes de correr la app hay que poner la de cada maquina:
+
+    <property name="hibernate.connection.username" value="root"/>
+    <property name="hibernate.connection.password" value="AQUI_LA_TUYA"/>
+
+Si no se hace esto, al abrir el login sale el mensaje "No pude conectarme a la
+base de datos".
+
+
+BASE DE DATOS
+-------------
+La base se llama pastoral_social. El script base de datos.sql crea las tablas
+originales; el resto de las tablas y columnas las crea Hibernate solo al
+arrancar (hibernate.hbm2ddl.auto = update), no hay que correr nada mas.
+
+
+COMO SE CORRE
+-------------
+Clic derecho sobre src/main/java/ui/LoginFrame.java > Run As > Java Application
+
+Usuario inicial: admin
+
+
+RECUPERACION DE CONTRASENA (lo nuevo)
+-------------------------------------
+Desde el login, el boton "Olvidaste tu contrasena?" abre el flujo de 3 pasos:
+se pide el correo, llega un codigo de 6 digitos, y con ese codigo se escribe la
+contrasena nueva. El codigo vence a los 15 minutos y solo sirve una vez.
+
+IMPORTANTE: cada usuario necesita tener un correo registrado para poder usarlo.
+Los usuarios que ya existian en la base tienen el correo vacio, hay que
+llenarselo entrando como administrador:
+
+    Menu Principal > Gestionar usuarios > (seleccionar) > Editar > Correo
+
+En la lista de usuarios los que todavia no lo tienen aparecen como "(sin correo)".
+
+Librerias que agrega esta funcionalidad (ya vienen en lib):
+    javax.mail-1.6.2.jar
+    activation-1.1.1.jar
+
+El envio de correo esta en src/main/java/util/EmailUtil.java y usa una cuenta
+de Gmail con contrasena de aplicacion. Si el correo deja de enviarse, lo mas
+probable es que esa contrasena de aplicacion haya sido revocada y haya que
+generar una nueva desde la configuracion de la cuenta de Google.

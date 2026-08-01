@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+             http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="pastoralSocialPU" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <class>model.Usuario</class>
+        <class>model.Rol</class>
+        <class>model.Parroquia</class>
+        <class>model.SectorFilial</class>
+        <class>model.TipoVivienda</class>
+        <class>model.Tenencia</class>
+        <class>model.CondicionVivienda</class>
+        <class>model.TipoAsistencia</class>
+        <class>model.Asistencia</class>
+        <class>model.Bitacora</class>
+        <class>model.Expediente</class>
+        <class>model.ProlongacionAyuda</class>
+        <class>model.Persona</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
+            <!-- le agregué allowPublicKeyRetrieval=true porque MySQL 8 autentica con
+                 caching_sha2_password y, al ir sin SSL, el driver necesita pedirle la
+                 llave pública al servidor. sin este parámetro tira
+                 "Public Key Retrieval is not allowed" y no conecta. -->
+            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/pastoral_social?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC"/>
+            <!-- poné acá el usuario y la contraseña de TU MySQL antes de correr la app -->
+            <property name="hibernate.connection.username" value="root"/>
+            <property name="hibernate.connection.password" value=""/>
+           <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+            <!-- esto es importante: sin default_catalog, Hibernate revisa si una tabla
+                 existe mirando TODAS las bases del servidor. como en la base sigcas hay
+                 una tabla bitacora, creía que la mía ya existía y en vez de crearla
+                 intentaba alterarla, y fallaba en silencio. con esto la busca solo
+                 dentro de pastoral_social. -->
+            <property name="hibernate.default_catalog" value="pastoral_social"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
