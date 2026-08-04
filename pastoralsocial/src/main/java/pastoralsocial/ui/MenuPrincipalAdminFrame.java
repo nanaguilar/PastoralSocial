@@ -16,6 +16,7 @@ import pastoralsocial.modelo.Usuario;
 import pastoralsocial.ui.admin.CasosSocialesPanel;
 import pastoralsocial.ui.admin.GrupoFamiliarPanel;
 import pastoralsocial.ui.admin.UsuariosPanel;
+import pastoralsocial.ui.asistencia.AsistenciasPanel;
 
 public class MenuPrincipalAdminFrame extends JFrame {
 
@@ -156,7 +157,7 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		GrupoFamiliarPanel grupoFamiliarPanel = new GrupoFamiliarPanel();
 
 		// MODULOS
-		JPanel panelAsistencias = crearPanelModulo("Asistencias", "Registre y consulte las asistencias otorgadas.");
+		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
 		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
 
 		panelContenido.add(panelInicio, "INICIO");

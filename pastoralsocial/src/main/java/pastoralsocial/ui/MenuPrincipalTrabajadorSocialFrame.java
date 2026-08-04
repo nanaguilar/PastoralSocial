@@ -13,6 +13,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.ui.asistencia.AsistenciasPanel;
 import pastoralsocial.ui.trabajadorsocial.CasosSocialesTrabajadorPanel;
 import pastoralsocial.ui.trabajadorsocial.GrupoFamiliarTrabajadorPanel;
 
@@ -151,7 +152,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		GrupoFamiliarTrabajadorPanel grupoFamiliarPanel = new GrupoFamiliarTrabajadorPanel(usuarioActual);
 
 		// MODULOS
-		JPanel panelAsistencias = crearPanelModulo("Asistencias", "Registre y consulte las asistencias otorgadas.");
+		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
 		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
 
 		panelContenido.add(panelInicio, "INICIO");
