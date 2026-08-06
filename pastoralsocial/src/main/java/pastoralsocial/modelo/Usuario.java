@@ -53,6 +53,13 @@ public class Usuario {
 	@Column(name = "estado")
 	private boolean estado;
 
+	@Column(name = "reset_token")
+	private String resetToken;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "token_expiration")
+	private Date tokenExpiration;
+
 	@ManyToOne
 	@JoinColumn(name = "idRol", nullable = false)
 	private Rol rol;
@@ -192,6 +199,22 @@ public class Usuario {
 
 	public void setCasosSociales(List<CasoSocial> casosSociales) {
 		this.casosSociales = casosSociales;
+	}
+
+	public String getResetToken() {
+		return resetToken;
+	}
+
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+
+	public Date getTokenExpiration() {
+		return tokenExpiration;
+	}
+
+	public void setTokenExpiration(Date tokenExpiration) {
+		this.tokenExpiration = tokenExpiration;
 	}
 
 	@Override

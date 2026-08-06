@@ -11,6 +11,7 @@
 		<class>pastoralsocial.modelo.IntegranteFamiliar</class>
 		<class>pastoralsocial.modelo.IngresoFamiliar</class>
 		<class>pastoralsocial.modelo.Asistencia</class>
+		<class>pastoralsocial.modelo.Bitacora</class>
 		
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		
