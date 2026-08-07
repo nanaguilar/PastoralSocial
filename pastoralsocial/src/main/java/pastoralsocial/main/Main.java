@@ -8,6 +8,10 @@ import pastoralsocial.modelo.Genero;
 import pastoralsocial.modelo.Rol;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.util.JPAUtil;
+import pastoralsocial.controller.MaestroController;
+import pastoralsocial.controller.DetalleController;
+import pastoralsocial.modelo.Maestro;
+import pastoralsocial.modelo.Detalle;
 
 public class Main {
 
@@ -34,7 +38,20 @@ public class Main {
 			usuarioController.registrar(administrador);
 
 			System.out.println("Usuario administrador registrado correctamente.");
+			
+			// 3. Crear catálogo "Tipo de Asistencia" con sus valores iniciales
+			MaestroController maestroController = new MaestroController();
+			DetalleController detalleController = new DetalleController();
 
+			Maestro tipoAsistencia = new Maestro("Tipo de Asistencia");
+			maestroController.registrar(tipoAsistencia);
+
+			detalleController.registrar(new Detalle("Visita domiciliaria", tipoAsistencia));
+			detalleController.registrar(new Detalle("Ayuda económica", tipoAsistencia));
+			detalleController.registrar(new Detalle("Orientación psicológica", tipoAsistencia));
+			detalleController.registrar(new Detalle("Donación de víveres", tipoAsistencia));
+
+			System.out.println("Catálogo Tipo de Asistencia registrado correctamente.");
 			System.out.println("===== DATOS DE PRUEBA CREADOS =====");
 
 		} catch (Exception e) {

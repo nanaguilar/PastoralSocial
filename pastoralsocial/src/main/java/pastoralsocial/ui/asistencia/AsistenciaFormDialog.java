@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -26,189 +25,154 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
 
 import pastoralsocial.controller.AsistenciaController;
-import pastoralsocial.controller.CasoSocialController;
-import pastoralsocial.controller.TipoAsistenciaController;
+import pastoralsocial.controller.DetalleController;
+import pastoralsocial.controller.MaestroController;
 import pastoralsocial.modelo.Asistencia;
 import pastoralsocial.modelo.CasoSocial;
-import pastoralsocial.modelo.TipoAsistencia;
+import pastoralsocial.modelo.Detalle;
+import pastoralsocial.modelo.Maestro;
 
 public class AsistenciaFormDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	private JPanel contentPanel;
+	// Nombre del catalogo (Maestro) que agrupa los tipos de asistencia.
+	// Debe coincidir exactamente con el que se sembro en Main.java.
+	private static final String NOMBRE_CATALOGO_TIPO_ASISTENCIA = "Tipo de Asistencia";
 
-	private JComboBox<CasoSocial> cmbCasoSocial;
-	private JComboBox<TipoAsistencia> cmbTipoAsistencia;
 	private JFormattedTextField txtFecha;
-	private JComboBox<String> cmbModalidad;
+	private JComboBox<Detalle> cmbTipoAsistencia;
+	private JTextField txtModalidad;
 	private JTextField txtFrecuencia;
 	private JTextField txtDuracion;
 	private JTextField txtValor;
 	private JTextArea txtObservaciones;
 
-	private JButton btnCancelar;
 	private JButton btnGuardar;
-	private JLabel lblTitulo;
 
 	private final AsistenciaController asistenciaController;
-	private final CasoSocialController casoSocialController;
-	private final TipoAsistenciaController tipoAsistenciaController;
+	private final DetalleController detalleController;
+	private final MaestroController maestroController;
 
-	private Asistencia asistenciaEditar;
+	private final CasoSocial casoSocial;
+	private Asistencia asistencia;
+	private boolean modoEdicion;
 
-	private boolean operacionRealizada;
-	private boolean hayCambios;
+	private boolean guardado;
 
-	// NUEVA ASISTENCIA
-	public AsistenciaFormDialog(Frame parent) {
-		this(parent, null);
-	}
+	// CREAR ASISTENCIA NUEVA
+	public AsistenciaFormDialog(Frame parent, CasoSocial casoSocial) {
 
-	// EDITAR ASISTENCIA (si asistenciaEditar es null, se comporta como "nueva")
-	public AsistenciaFormDialog(Frame parent, Asistencia asistenciaEditar) {
-		super(parent, true);
+		super(parent, "Nueva asistencia", true);
 
+		this.casoSocial = casoSocial;
+		this.asistencia = null;
+		this.modoEdicion = false;
 		this.asistenciaController = new AsistenciaController();
-		this.casoSocialController = new CasoSocialController();
-		this.tipoAsistenciaController = new TipoAsistenciaController();
-		this.asistenciaEditar = asistenciaEditar;
-		this.operacionRealizada = false;
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
 
 		inicializarInterfaz();
-		cargarCombos();
 
-		if (asistenciaEditar == null) {
-			prepararNuevaAsistencia();
-		} else {
-			prepararEdicion();
-		}
+		setLocationRelativeTo(parent);
+	}
 
-		configurarDeteccionCambios();
-		hayCambios = false;
+	// EDITAR ASISTENCIA EXISTENTE
+	public AsistenciaFormDialog(Frame parent, Asistencia asistencia) {
+
+		super(parent, "Editar asistencia", true);
+
+		this.casoSocial = asistencia.getCasoSocial();
+		this.asistencia = asistencia;
+		this.modoEdicion = true;
+		this.asistenciaController = new AsistenciaController();
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
+
+		inicializarInterfaz();
+
+		cargarDatos();
+
+		setLocationRelativeTo(parent);
 	}
 
 	private void inicializarInterfaz() {
 
-		setTitle("Gestión de Asistencias");
-		setBounds(100, 100, 640, 650);
-		getContentPane().setLayout(null);
-		setResizable(false);
-		setLocationRelativeTo(getParent());
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-
-		contentPanel = new JPanel();
-		contentPanel.setBounds(0, 0, 634, 611);
+		JPanel contentPanel = new JPanel();
 		contentPanel.setBackground(new Color(245, 247, 250));
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
 		contentPanel.setLayout(null);
-		getContentPane().add(contentPanel);
+		setContentPane(contentPanel);
 
 		// TITULO
-		lblTitulo = new JLabel("Nueva asistencia");
+		JLabel lblTitulo = new JLabel(modoEdicion ? "Editar asistencia" : "Nueva asistencia");
 		lblTitulo.setForeground(new Color(0, 45, 102));
-		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
-		lblTitulo.setBounds(30, 20, 400, 35);
+		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
+		lblTitulo.setBounds(25, 15, 430, 40);
 		contentPanel.add(lblTitulo);
 
-		// CASO SOCIAL
-		JLabel lblCasoSocial = new JLabel("Caso social");
-		lblCasoSocial.setForeground(new Color(0, 45, 102));
-		lblCasoSocial.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblCasoSocial.setBounds(30, 75, 280, 25);
-		contentPanel.add(lblCasoSocial);
-
-		cmbCasoSocial = new JComboBox<CasoSocial>();
-		cmbCasoSocial.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		cmbCasoSocial.setBounds(30, 100, 280, 35);
-		contentPanel.add(cmbCasoSocial);
-
-		// TIPO DE ASISTENCIA
-		JLabel lblTipoAsistencia = new JLabel("Tipo de asistencia");
-		lblTipoAsistencia.setForeground(new Color(0, 45, 102));
-		lblTipoAsistencia.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblTipoAsistencia.setBounds(325, 75, 280, 25);
-		contentPanel.add(lblTipoAsistencia);
-
-		cmbTipoAsistencia = new JComboBox<TipoAsistencia>();
-		cmbTipoAsistencia.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		cmbTipoAsistencia.setBounds(325, 100, 280, 35);
-		contentPanel.add(cmbTipoAsistencia);
+		JLabel lblDescripcion = new JLabel(
+				modoEdicion ? "Actualice la información de la asistencia del caso " + casoSocial.getNumeroFicha() + "."
+						: "Registre una nueva asistencia para el caso " + casoSocial.getNumeroFicha() + ".");
+		lblDescripcion.setForeground(new Color(90, 90, 90));
+		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		lblDescripcion.setBounds(25, 52, 600, 25);
+		contentPanel.add(lblDescripcion);
 
 		// FECHA
-		JLabel lblFecha = new JLabel("Fecha");
-		lblFecha.setForeground(new Color(0, 45, 102));
-		lblFecha.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblFecha.setBounds(30, 150, 280, 25);
+		JLabel lblFecha = crearEtiqueta("Fecha");
+		lblFecha.setBounds(25, 100, 210, 20);
 		contentPanel.add(lblFecha);
-
 		txtFecha = crearCampoFecha();
-		txtFecha.setForeground(new Color(0, 45, 102));
-		txtFecha.setBounds(30, 175, 280, 35);
-		txtFecha.setToolTipText("Formato: dd/mm/aaaa");
+		txtFecha.setBounds(25, 123, 210, 35);
 		contentPanel.add(txtFecha);
 
-		// MODALIDAD
-		JLabel lblModalidad = new JLabel("Modalidad");
-		lblModalidad.setForeground(new Color(0, 45, 102));
-		lblModalidad.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblModalidad.setBounds(325, 150, 280, 25);
-		contentPanel.add(lblModalidad);
+		// TIPO DE ASISTENCIA (ComboBox cargado desde Detalle)
+		JLabel lblTipoAsistencia = crearEtiqueta("Tipo de asistencia");
+		lblTipoAsistencia.setBounds(265, 100, 250, 20);
+		contentPanel.add(lblTipoAsistencia);
+		cmbTipoAsistencia = new JComboBox<Detalle>();
+		cmbTipoAsistencia.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cmbTipoAsistencia.setBounds(265, 123, 250, 35);
+		contentPanel.add(cmbTipoAsistencia);
 
-		cmbModalidad = new JComboBox<String>();
-		cmbModalidad.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		cmbModalidad.setBounds(325, 175, 280, 35);
-		cmbModalidad.setModel(new DefaultComboBoxModel<String>(
-				new String[] { "Presencial", "Virtual", "Domicilio" }));
-		contentPanel.add(cmbModalidad);
+		cargarComboTipoAsistencia();
+
+		// MODALIDAD
+		JLabel lblModalidad = crearEtiqueta("Modalidad");
+		lblModalidad.setBounds(25, 190, 210, 20);
+		contentPanel.add(lblModalidad);
+		txtModalidad = crearCampoTexto();
+		txtModalidad.setBounds(25, 213, 210, 35);
+		contentPanel.add(txtModalidad);
 
 		// FRECUENCIA
-		JLabel lblFrecuencia = new JLabel("Frecuencia");
-		lblFrecuencia.setForeground(new Color(0, 45, 102));
-		lblFrecuencia.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblFrecuencia.setBounds(30, 225, 280, 25);
+		JLabel lblFrecuencia = crearEtiqueta("Frecuencia");
+		lblFrecuencia.setBounds(265, 190, 250, 20);
 		contentPanel.add(lblFrecuencia);
-
-		txtFrecuencia = new JTextField();
-		txtFrecuencia.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		txtFrecuencia.setForeground(new Color(0, 45, 102));
-		txtFrecuencia.setBounds(30, 250, 280, 35);
-		txtFrecuencia.setColumns(10);
+		txtFrecuencia = crearCampoTexto();
+		txtFrecuencia.setBounds(265, 213, 250, 35);
 		contentPanel.add(txtFrecuencia);
 
 		// DURACION
-		JLabel lblDuracion = new JLabel("Duración");
-		lblDuracion.setForeground(new Color(0, 45, 102));
-		lblDuracion.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblDuracion.setBounds(325, 225, 280, 25);
+		JLabel lblDuracion = crearEtiqueta("Duración");
+		lblDuracion.setBounds(25, 280, 210, 20);
 		contentPanel.add(lblDuracion);
-
-		txtDuracion = new JTextField();
-		txtDuracion.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		txtDuracion.setForeground(new Color(0, 45, 102));
-		txtDuracion.setBounds(325, 250, 280, 35);
-		txtDuracion.setColumns(10);
+		txtDuracion = crearCampoTexto();
+		txtDuracion.setBounds(25, 303, 210, 35);
 		contentPanel.add(txtDuracion);
 
 		// VALOR
-		JLabel lblValor = new JLabel("Valor (₡)");
-		lblValor.setForeground(new Color(0, 45, 102));
-		lblValor.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblValor.setBounds(30, 300, 280, 25);
+		JLabel lblValor = crearEtiqueta("Valor");
+		lblValor.setBounds(265, 280, 250, 20);
 		contentPanel.add(lblValor);
-
-		txtValor = new JTextField();
-		txtValor.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		txtValor.setForeground(new Color(0, 45, 102));
-		txtValor.setBounds(30, 325, 280, 35);
-		txtValor.setColumns(10);
+		txtValor = crearCampoTexto();
+		txtValor.setBounds(265, 303, 250, 35);
 		contentPanel.add(txtValor);
 
 		// OBSERVACIONES
-		JLabel lblObservaciones = new JLabel("Observaciones");
-		lblObservaciones.setForeground(new Color(0, 45, 102));
-		lblObservaciones.setFont(new Font("SansSerif", Font.BOLD, 12));
-		lblObservaciones.setBounds(30, 375, 280, 25);
+		JLabel lblObservaciones = crearEtiqueta("Observaciones");
+		lblObservaciones.setBounds(25, 370, 250, 20);
 		contentPanel.add(lblObservaciones);
 
 		txtObservaciones = new JTextArea();
@@ -217,30 +181,28 @@ public class AsistenciaFormDialog extends JDialog {
 		txtObservaciones.setWrapStyleWord(true);
 
 		JScrollPane scrollObservaciones = new JScrollPane(txtObservaciones);
-		scrollObservaciones.setBounds(30, 400, 575, 110);
+		scrollObservaciones.setBounds(25, 393, 490, 90);
 		contentPanel.add(scrollObservaciones);
 
-		// BOTON CANCELAR
-		btnCancelar = new JButton("Cancelar");
+		// CANCELAR
+		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.setForeground(new Color(0, 45, 102));
 		btnCancelar.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnCancelar.setFocusPainted(false);
-		btnCancelar.setBounds(325, 535, 130, 40);
+		btnCancelar.setBounds(220, 500, 120, 40);
 		contentPanel.add(btnCancelar);
 
-		// BOTON GUARDAR
-		btnGuardar = new JButton("Guardar");
+		// GUARDAR
+		btnGuardar = new JButton(modoEdicion ? "Guardar cambios" : "Guardar asistencia");
 		btnGuardar.setForeground(new Color(0, 45, 102));
 		btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnGuardar.setFocusPainted(false);
-		btnGuardar.setBounds(475, 535, 130, 40);
+		btnGuardar.setBounds(355, 500, 175, 40);
 		contentPanel.add(btnGuardar);
 
 		btnCancelar.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				intentarCerrar();
+				dispose();
 			}
 		});
 
@@ -248,9 +210,84 @@ public class AsistenciaFormDialog extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guardarAsistencia();
+				guardar();
 			}
 		});
+
+		setSize(560, 600);
+		setResizable(false);
+	}
+
+	/**
+	 * Este es el metodo clave del patron Maestro-Detalle: en vez de leer
+	 * de una tabla dedicada (como se hacia antes con TipoAsistenciaController),
+	 * busca el catalogo por nombre y carga unicamente los Detalle que le
+	 * pertenecen.
+	 */
+	private void cargarComboTipoAsistencia() {
+
+		cmbTipoAsistencia.removeAllItems();
+
+		Maestro catalogoTipoAsistencia = maestroController.buscarPorNombre(NOMBRE_CATALOGO_TIPO_ASISTENCIA);
+
+		if (catalogoTipoAsistencia == null) {
+
+			JOptionPane.showMessageDialog(this,
+					"No se encontró el catálogo 'Tipo de Asistencia'. Verifique que se haya sembrado en Main.java.",
+					"Catálogo no encontrado", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		List<Detalle> detalles = detalleController.listarPorMaestro(catalogoTipoAsistencia.getIdMaestro());
+
+		for (Detalle detalle : detalles) {
+
+			cmbTipoAsistencia.addItem(detalle);
+		}
+	}
+
+	private void cargarDatos() {
+
+		if (asistencia == null) {
+			return;
+		}
+
+		if (asistencia.getFecha() != null) {
+
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
+			txtFecha.setText(formato.format(asistencia.getFecha()));
+		}
+
+		if (asistencia.getDetalleTipoAsistencia() != null) {
+
+			cmbTipoAsistencia.setSelectedItem(asistencia.getDetalleTipoAsistencia());
+		}
+
+		txtModalidad.setText(asistencia.getModalidad() != null ? asistencia.getModalidad() : "");
+		txtFrecuencia.setText(asistencia.getFrecuencia() != null ? asistencia.getFrecuencia() : "");
+		txtDuracion.setText(asistencia.getDuracion() != null ? asistencia.getDuracion() : "");
+		txtValor.setText(asistencia.getValor() != null ? asistencia.getValor().toString() : "");
+		txtObservaciones.setText(asistencia.getObservaciones() != null ? asistencia.getObservaciones() : "");
+	}
+
+	private JLabel crearEtiqueta(String texto) {
+
+		JLabel label = new JLabel(texto);
+
+		label.setForeground(new Color(0, 45, 102));
+		label.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+		return label;
+	}
+
+	private JTextField crearCampoTexto() {
+
+		JTextField campo = new JTextField();
+
+		campo.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+		return campo;
 	}
 
 	private JFormattedTextField crearCampoFecha() {
@@ -258,9 +295,11 @@ public class AsistenciaFormDialog extends JDialog {
 		try {
 
 			MaskFormatter mascara = new MaskFormatter("##/##/####");
+
 			mascara.setPlaceholderCharacter('_');
 
 			JFormattedTextField campo = new JFormattedTextField(mascara);
+
 			campo.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
 			return campo;
@@ -271,143 +310,54 @@ public class AsistenciaFormDialog extends JDialog {
 		}
 	}
 
-	private void cargarCombos() {
+	private void guardar() {
 
 		try {
 
-			List<CasoSocial> casos = casoSocialController.listar();
-			cmbCasoSocial.setModel(new DefaultComboBoxModel<CasoSocial>(casos.toArray(new CasoSocial[0])));
+			validarFormulario();
 
-			List<TipoAsistencia> tipos = tipoAsistenciaController.listar();
-			cmbTipoAsistencia.setModel(new DefaultComboBoxModel<TipoAsistencia>(tipos.toArray(new TipoAsistencia[0])));
+			String mensaje = modoEdicion ? "¿Desea guardar los cambios de esta asistencia?"
+					: "¿Desea registrar esta asistencia para el caso " + casoSocial.getNumeroFicha() + "?";
 
-		} catch (Exception e) {
+			int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Confirmar", JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE);
 
-			e.printStackTrace();
+			if (opcion != JOptionPane.YES_OPTION) {
 
-			JOptionPane.showMessageDialog(this, "No fue posible cargar los casos sociales o los tipos de asistencia.",
-					"Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
+				return;
+			}
 
-	private void prepararNuevaAsistencia() {
+			Asistencia asistenciaGuardar = modoEdicion ? asistencia : new Asistencia();
 
-		lblTitulo.setText("Nueva asistencia");
-		cmbCasoSocial.setSelectedIndex(cmbCasoSocial.getItemCount() > 0 ? 0 : -1);
-		cmbTipoAsistencia.setSelectedIndex(cmbTipoAsistencia.getItemCount() > 0 ? 0 : -1);
+			asistenciaGuardar.setCasoSocial(casoSocial);
+			asistenciaGuardar.setFecha(obtenerFecha());
+			asistenciaGuardar.setDetalleTipoAsistencia((Detalle) cmbTipoAsistencia.getSelectedItem());
+			asistenciaGuardar.setModalidad(txtModalidad.getText().trim());
+			asistenciaGuardar.setFrecuencia(txtFrecuencia.getText().trim());
+			asistenciaGuardar.setDuracion(txtDuracion.getText().trim());
+			asistenciaGuardar.setValor(obtenerValor());
+			asistenciaGuardar.setObservaciones(txtObservaciones.getText().trim());
 
-		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-		txtFecha.setText(formato.format(new Date()));
-	}
+			if (modoEdicion) {
 
-	private void prepararEdicion() {
-
-		lblTitulo.setText("Editar asistencia");
-
-		cmbCasoSocial.setSelectedItem(asistenciaEditar.getCasoSocial());
-		cmbTipoAsistencia.setSelectedItem(asistenciaEditar.getTipoAsistencia());
-
-		if (asistenciaEditar.getFecha() != null) {
-
-			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-			txtFecha.setText(formato.format(asistenciaEditar.getFecha()));
-		}
-
-		if (asistenciaEditar.getModalidad() != null) {
-			cmbModalidad.setSelectedItem(asistenciaEditar.getModalidad());
-		}
-
-		if (asistenciaEditar.getFrecuencia() != null) {
-			txtFrecuencia.setText(asistenciaEditar.getFrecuencia());
-		}
-
-		if (asistenciaEditar.getDuracion() != null) {
-			txtDuracion.setText(asistenciaEditar.getDuracion());
-		}
-
-		if (asistenciaEditar.getValor() != null) {
-			txtValor.setText(asistenciaEditar.getValor().toPlainString());
-		}
-
-		if (asistenciaEditar.getObservaciones() != null) {
-			txtObservaciones.setText(asistenciaEditar.getObservaciones());
-		}
-	}
-
-	private void configurarDeteccionCambios() {
-
-		hayCambios = true;
-	}
-
-	private void intentarCerrar() {
-
-		if (!hayCambios) {
-
-			dispose();
-			return;
-		}
-
-		int opcion = JOptionPane.showConfirmDialog(this, "Hay cambios sin guardar. ¿Desea salir de todas formas?",
-				"Confirmar salida", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-		if (opcion == JOptionPane.YES_OPTION) {
-
-			dispose();
-		}
-	}
-
-	private void guardarAsistencia() {
-
-		try {
-
-			CasoSocial casoSocial = (CasoSocial) cmbCasoSocial.getSelectedItem();
-			TipoAsistencia tipoAsistencia = (TipoAsistencia) cmbTipoAsistencia.getSelectedItem();
-			Date fecha = obtenerFecha();
-			String modalidad = cmbModalidad.getSelectedItem() != null ? cmbModalidad.getSelectedItem().toString() : null;
-			String frecuencia = txtFrecuencia.getText().trim();
-			String duracion = txtDuracion.getText().trim();
-			BigDecimal valor = obtenerValor();
-			String observaciones = txtObservaciones.getText().trim();
-
-			// NUEVA ASISTENCIA
-			if (asistenciaEditar == null) {
-
-				Asistencia nuevaAsistencia = new Asistencia(fecha, modalidad, frecuencia, duracion, valor,
-						observaciones, casoSocial, tipoAsistencia);
-
-				asistenciaController.registrar(nuevaAsistencia);
-
-				operacionRealizada = true;
-
-				JOptionPane.showMessageDialog(this, "Asistencia registrada correctamente.", "Asistencias",
-						JOptionPane.INFORMATION_MESSAGE);
-
-				dispose();
+				asistenciaController.actualizar(asistenciaGuardar);
 
 			} else {
 
-				asistenciaEditar.setCasoSocial(casoSocial);
-				asistenciaEditar.setTipoAsistencia(tipoAsistencia);
-				asistenciaEditar.setFecha(fecha);
-				asistenciaEditar.setModalidad(modalidad);
-				asistenciaEditar.setFrecuencia(frecuencia);
-				asistenciaEditar.setDuracion(duracion);
-				asistenciaEditar.setValor(valor);
-				asistenciaEditar.setObservaciones(observaciones);
-
-				asistenciaController.actualizar(asistenciaEditar);
-
-				operacionRealizada = true;
-
-				JOptionPane.showMessageDialog(this, "Asistencia actualizada correctamente.", "Asistencias",
-						JOptionPane.INFORMATION_MESSAGE);
-
-				dispose();
+				asistenciaController.registrar(asistenciaGuardar);
 			}
+
+			guardado = true;
+
+			JOptionPane.showMessageDialog(this,
+					modoEdicion ? "La asistencia se actualizó correctamente." : "La asistencia se registró correctamente.",
+					"Asistencias", JOptionPane.INFORMATION_MESSAGE);
+
+			dispose();
 
 		} catch (IllegalArgumentException e) {
 
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Asistencias", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
 
 		} catch (Exception e) {
 
@@ -418,13 +368,33 @@ public class AsistenciaFormDialog extends JDialog {
 		}
 	}
 
+	private void validarFormulario() {
+
+		if (obtenerFecha() == null) {
+
+			throw new IllegalArgumentException("Debe indicar la fecha de la asistencia.");
+		}
+
+		if (cmbTipoAsistencia.getSelectedItem() == null) {
+
+			throw new IllegalArgumentException("Debe seleccionar un tipo de asistencia.");
+		}
+
+		if (txtModalidad.getText() == null || txtModalidad.getText().trim().isEmpty()) {
+
+			throw new IllegalArgumentException("La modalidad es obligatoria.");
+		}
+
+		obtenerValor();
+	}
+
 	private Date obtenerFecha() {
 
 		String texto = txtFecha.getText();
 
 		if (texto == null || texto.replace("/", "").replace("_", "").trim().isEmpty()) {
 
-			throw new IllegalArgumentException("La fecha es obligatoria.");
+			return null;
 		}
 
 		if (texto.contains("_")) {
@@ -448,16 +418,23 @@ public class AsistenciaFormDialog extends JDialog {
 
 	private BigDecimal obtenerValor() {
 
-		String texto = txtValor.getText().trim();
+		String texto = txtValor.getText();
 
-		if (texto.isEmpty()) {
+		if (texto == null || texto.trim().isEmpty()) {
 
 			return null;
 		}
 
 		try {
 
-			return new BigDecimal(texto.replace(",", "."));
+			BigDecimal valor = new BigDecimal(texto.trim());
+
+			if (valor.compareTo(BigDecimal.ZERO) < 0) {
+
+				throw new IllegalArgumentException("El valor no puede ser negativo.");
+			}
+
+			return valor;
 
 		} catch (NumberFormatException e) {
 
@@ -465,7 +442,8 @@ public class AsistenciaFormDialog extends JDialog {
 		}
 	}
 
-	public boolean isOperacionRealizada() {
-		return operacionRealizada;
+	public boolean isGuardado() {
+
+		return guardado;
 	}
 }

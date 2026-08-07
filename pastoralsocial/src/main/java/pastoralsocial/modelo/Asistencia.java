@@ -40,15 +40,17 @@ public class Asistencia {
 	@JoinColumn(name = "idCasoSocial", nullable = false)
 	private CasoSocial casoSocial;
 
+	// Antes era: @ManyToOne TipoAsistencia tipoAsistencia;
+	// Ahora apunta a Detalle (el valor concreto dentro del catalogo "Tipo de Asistencia")
 	@ManyToOne
-	@JoinColumn(name = "idTipoAsistencia", nullable = false)
-	private TipoAsistencia tipoAsistencia;
+	@JoinColumn(name = "idDetalleTipoAsistencia", nullable = false)
+	private Detalle detalleTipoAsistencia;
 
 	public Asistencia() {
 	}
 
 	public Asistencia(Date fecha, String modalidad, String frecuencia, String duracion, BigDecimal valor,
-			String observaciones, CasoSocial casoSocial, TipoAsistencia tipoAsistencia) {
+			String observaciones, CasoSocial casoSocial, Detalle detalleTipoAsistencia) {
 
 		this.fecha = fecha;
 		this.modalidad = modalidad;
@@ -58,7 +60,7 @@ public class Asistencia {
 		this.observaciones = observaciones;
 
 		this.casoSocial = casoSocial;
-		this.tipoAsistencia = tipoAsistencia;
+		this.detalleTipoAsistencia = detalleTipoAsistencia;
 	}
 
 	public int getIdAsistencia() {
@@ -125,17 +127,17 @@ public class Asistencia {
 		this.casoSocial = casoSocial;
 	}
 
-	public TipoAsistencia getTipoAsistencia() {
-		return tipoAsistencia;
+	public Detalle getDetalleTipoAsistencia() {
+		return detalleTipoAsistencia;
 	}
 
-	public void setTipoAsistencia(TipoAsistencia tipoAsistencia) {
-		this.tipoAsistencia = tipoAsistencia;
+	public void setDetalleTipoAsistencia(Detalle detalleTipoAsistencia) {
+		this.detalleTipoAsistencia = detalleTipoAsistencia;
 	}
 
 	@Override
 	public String toString() {
-		return tipoAsistencia.getNombre() + " - " + fecha;
+		return detalleTipoAsistencia.getDescripcion() + " - " + fecha;
 	}
 
 }

@@ -78,7 +78,8 @@ public class AsistenciaController {
 			throw new IllegalArgumentException("Debe seleccionar un caso social.");
 		}
 
-		if (asistencia.getTipoAsistencia() == null) {
+		// Antes: asistencia.getTipoAsistencia() == null
+		if (asistencia.getDetalleTipoAsistencia() == null) {
 			throw new IllegalArgumentException("Debe seleccionar un tipo de asistencia.");
 		}
 
