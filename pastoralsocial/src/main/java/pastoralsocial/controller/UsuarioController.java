@@ -4,6 +4,7 @@ import java.util.List;
 
 import pastoralsocial.dao.UsuarioDAO;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.PasswordUtil;
 
 public class UsuarioController {
 
@@ -29,27 +30,108 @@ public class UsuarioController {
 
 		validarUsuario(usuario);
 		validarIdentificacionDuplicada(usuario);
+		validarCorreoDuplicado(usuario);
+
+		if (usuario.getPassword() == null || usuario.getPassword().trim().isEmpty()) {
+			throw new IllegalArgumentException("La contraseña es obligatoria.");
+		}
+
+		if (usuario.getPassword().length() != 8) {
+			throw new IllegalArgumentException("La contraseña debe tener exactamente 8 caracteres.");
+		}
 
 		if (usuarioDAO.buscarPorUsername(usuario.getUsername()) != null) {
 			throw new IllegalArgumentException("El nombre de usuario ya se encuentra registrado.");
 		}
 
+		usuario.setPassword(PasswordUtil.hash(usuario.getPassword()));
+
 		usuarioDAO.save(usuario);
 	}
 
-	public void actualizar(Usuario usuario) {
+	public boolean actualizar(Usuario usuario) {
 
-		validarUsuario(usuario);
-		validarIdentificacionDuplicada(usuario);
+		if (usuario == null) {
+			throw new IllegalArgumentException("La información del usuario es obligatoria.");
+		}
 
-		Usuario usuarioExistente = usuarioDAO.buscarPorUsername(usuario.getUsername());
+		Usuario usuarioExistente = usuarioDAO.getById(usuario.getIdUsuario());
 
-		if (usuarioExistente != null && usuarioExistente.getIdUsuario() != usuario.getIdUsuario()) {
+		if (usuarioExistente == null) {
+			throw new IllegalArgumentException("El usuario no fue encontrado.");
+		}
+
+		// Validar identificación solo si cambió
+		if (usuario.getIdentificacion() != null
+				&& !usuario.getIdentificacion().equalsIgnoreCase(usuarioExistente.getIdentificacion())) {
+
+			Usuario usuarioPorIdentificacion = usuarioDAO.buscarPorIdentificacion(usuario.getIdentificacion());
+
+			if (usuarioPorIdentificacion != null
+					&& usuarioPorIdentificacion.getIdUsuario() != usuarioExistente.getIdUsuario()) {
+
+				throw new IllegalArgumentException("Ya existe un usuario registrado con esta identificación.");
+			}
+		}
+
+		// Validar correo solo si cambió
+		String correoAnterior = usuarioExistente.getCorreoElectronico();
+		String correoNuevo = usuario.getCorreoElectronico();
+
+		boolean correoCambio = false;
+
+		if (correoNuevo == null || correoNuevo.trim().isEmpty()) {
+			throw new IllegalArgumentException("El correo electrónico es obligatorio.");
+		}
+
+		if (correoAnterior == null || !correoAnterior.equalsIgnoreCase(correoNuevo.trim())) {
+
+			Usuario usuarioPorCorreo = usuarioDAO.buscarPorCorreoTodos(correoNuevo);
+
+			if (usuarioPorCorreo != null && usuarioPorCorreo.getIdUsuario() != usuarioExistente.getIdUsuario()) {
+
+				throw new IllegalArgumentException("Ya existe un usuario registrado con este correo electrónico.");
+			}
+
+			correoCambio = true;
+		}
+
+		// Campos que NO pueden modificarse
+		usuario.setNombre(usuarioExistente.getNombre());
+		usuario.setApellidos(usuarioExistente.getApellidos());
+		usuario.setTipoIdentificacion(usuarioExistente.getTipoIdentificacion());
+		usuario.setIdentificacion(usuarioExistente.getIdentificacion());
+
+		// Validar username
+		if (usuario.getUsername() == null || usuario.getUsername().trim().isEmpty()) {
+			throw new IllegalArgumentException("El nombre de usuario es obligatorio.");
+		}
+
+		Usuario usuarioPorUsername = usuarioDAO.buscarPorUsername(usuario.getUsername());
+
+		if (usuarioPorUsername != null && usuarioPorUsername.getIdUsuario() != usuarioExistente.getIdUsuario()) {
 
 			throw new IllegalArgumentException("El nombre de usuario ya se encuentra registrado.");
 		}
 
+		// Validar rol
+		if (usuario.getDetalleRol() == null) {
+			throw new IllegalArgumentException("Debe seleccionar un rol.");
+		}
+
+		// Contraseña
+		if (usuario.getPassword() != null && !usuario.getPassword().trim().isEmpty()) {
+			usuario.setPassword(PasswordUtil.hash(usuario.getPassword()));
+
+		} else {
+
+			// Mantener la contraseña actual
+			usuario.setPassword(usuarioExistente.getPassword());
+		}
+
 		usuarioDAO.update(usuario);
+
+		return correoCambio;
 	}
 
 	public void eliminar(Usuario usuario) {
@@ -105,7 +187,7 @@ public class UsuarioController {
 			throw new IllegalArgumentException("La contraseña es obligatoria.");
 		}
 
-		if (usuario.getRol() == null) {
+		if (usuario.getDetalleRol() == null) {
 			throw new IllegalArgumentException("Debe seleccionar un rol.");
 		}
 	}
@@ -140,6 +222,21 @@ public class UsuarioController {
 		if (existente != null && existente.getIdUsuario() != usuario.getIdUsuario()) {
 
 			throw new IllegalArgumentException("Ya existe un usuario registrado con esta identificación.");
+		}
+	}
+
+	private void validarCorreoDuplicado(Usuario usuario) {
+
+		if (usuario.getCorreoElectronico() == null || usuario.getCorreoElectronico().trim().isEmpty()) {
+
+			throw new IllegalArgumentException("El correo electrónico es obligatorio.");
+		}
+
+		Usuario existente = usuarioDAO.buscarPorCorreoTodos(usuario.getCorreoElectronico());
+
+		if (existente != null && existente.getIdUsuario() != usuario.getIdUsuario()) {
+
+			throw new IllegalArgumentException("Ya existe un usuario registrado con este correo electrónico.");
 		}
 	}
 
@@ -192,8 +289,7 @@ public class UsuarioController {
 			throw new IllegalArgumentException("Las contraseñas no coinciden.");
 		}
 
-		usuario.setPassword(nuevaContrasena);
-
+		usuario.setPassword(PasswordUtil.hash(nuevaContrasena));
 		usuarioDAO.update(usuario);
 	}
 }

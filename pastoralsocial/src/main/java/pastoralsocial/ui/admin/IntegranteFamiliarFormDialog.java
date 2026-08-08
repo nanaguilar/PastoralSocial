@@ -19,37 +19,42 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.MaskFormatter;
+import java.util.List;
 
+import pastoralsocial.controller.DetalleController;
+import pastoralsocial.controller.MaestroController;
 import pastoralsocial.controller.IntegranteFamiliarController;
 import pastoralsocial.modelo.CasoSocial;
-import pastoralsocial.modelo.Genero;
+import pastoralsocial.modelo.Detalle;
+import pastoralsocial.modelo.Maestro;
 import pastoralsocial.modelo.IntegranteFamiliar;
 
 public class IntegranteFamiliarFormDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String CATALOGO_GENERO = "Genero";
+	private static final String CATALOGO_PARENTESCO = "Parentesco";
+	private static final String CATALOGO_NIVEL_EDUCATIVO = "Nivel Educativo";
+	private static final String CATALOGO_SEGURO = "Seguro";
+
 	private JTextField txtIdentificacion;
 	private JTextField txtNombre;
 	private JTextField txtApellidos;
 	private JTextField txtTelefono;
 	private JTextField txtCorreo;
-	private JTextField txtParentesco;
-	private JTextField txtNivelEducativo;
-	private JTextField txtSeguro;
+	private JComboBox<Detalle> cmbParentesco;
+	private JComboBox<Detalle> cmbNivelEducativo;
+	private JComboBox<Detalle> cmbSeguro;
+	private JTextField txtSalud;
+	private JTextField txtMigracion;
 	private JTextField txtPais;
-	private JTextField txtProvincia;
-	private JTextField txtCanton;
-	private JTextField txtDistrito;
 	private JFormattedTextField txtFechaNacimiento;
-	private JTextArea txtDireccion;
 	private JComboBox<String> cmbTipoIdentificacion;
-	private JComboBox<Genero> cmbGenero;
+	private JComboBox<Detalle> cmbGenero;
 
 	private JRadioButton rdbSiJefeHogar;
 	private JRadioButton rdbNoJefeHogar;
@@ -57,6 +62,8 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 	private JButton btnGuardar;
 
 	private final IntegranteFamiliarController integranteController;
+	private final DetalleController detalleController;
+	private final MaestroController maestroController;
 
 	private final CasoSocial casoSocial;
 	private IntegranteFamiliar integrante;
@@ -74,9 +81,21 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		this.casoSocial = casoSocial;
 		this.integrante = null;
 		this.modoEdicion = false;
+
 		this.integranteController = new IntegranteFamiliarController();
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
 
 		inicializarInterfaz();
+
+		cargarCatalogos();
+
+		cmbGenero.removeAllItems();
+
+		for (Detalle detalle : obtenerDetallesDelCatalogo(CATALOGO_GENERO)) {
+
+			cmbGenero.addItem(detalle);
+		}
 
 		configurarDeteccionCambios();
 		hayCambios = false;
@@ -92,10 +111,14 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		this.casoSocial = casoSocial;
 		this.integrante = integrante;
 		this.modoEdicion = true;
+
 		this.integranteController = new IntegranteFamiliarController();
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
 
 		inicializarInterfaz();
 
+		cargarCatalogos();
 		cargarDatos();
 
 		configurarDeteccionCambios();
@@ -155,14 +178,18 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		txtIdentificacion.setBounds(265, 148, 200, 35);
 		contentPanel.add(txtIdentificacion);
 
-		// GENERO
-		JLabel lblGenero = crearEtiqueta("Género");
+		// GÉNERO
+		JLabel lblGenero = new JLabel("Género");
+		lblGenero.setForeground(new Color(0, 45, 102));
+		lblGenero.setFont(new Font("SansSerif", Font.BOLD, 12));
 		lblGenero.setBounds(495, 125, 215, 20);
-		contentPanel.add(lblGenero);
-		cmbGenero = new JComboBox<Genero>();
+		getContentPane().add(lblGenero);
+
+		cmbGenero = new JComboBox<Detalle>();
+		cmbGenero.setForeground(new Color(0, 45, 102));
 		cmbGenero.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbGenero.setBounds(495, 148, 215, 35);
-		contentPanel.add(cmbGenero);
+		getContentPane().add(cmbGenero);
 
 		cargarGeneros();
 
@@ -201,9 +228,10 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		JLabel lblParentesco = crearEtiqueta("Parentesco");
 		lblParentesco.setBounds(25, 315, 210, 20);
 		contentPanel.add(lblParentesco);
-		txtParentesco = crearCampoTexto();
-		txtParentesco.setBounds(25, 338, 210, 35);
-		contentPanel.add(txtParentesco);
+		cmbParentesco = new JComboBox<Detalle>();
+		cmbParentesco.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cmbParentesco.setBounds(25, 338, 210, 35);
+		contentPanel.add(cmbParentesco);
 
 		// JEFE HOGAR
 		JLabel lblJefeHogar = crearEtiqueta("Jefe de hogar");
@@ -246,70 +274,43 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		JLabel lblNivelEducativo = crearEtiqueta("Nivel educativo");
 		lblNivelEducativo.setBounds(265, 385, 200, 20);
 		contentPanel.add(lblNivelEducativo);
-		txtNivelEducativo = crearCampoTexto();
-		txtNivelEducativo.setBounds(265, 408, 200, 35);
-		contentPanel.add(txtNivelEducativo);
+		cmbNivelEducativo = new JComboBox<Detalle>();
+		cmbNivelEducativo.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cmbNivelEducativo.setBounds(265, 408, 200, 35);
+		contentPanel.add(cmbNivelEducativo);
 
 		// SEGURO
 		JLabel lblSeguro = crearEtiqueta("Seguro");
 		lblSeguro.setBounds(495, 385, 215, 20);
 		contentPanel.add(lblSeguro);
-		txtSeguro = crearCampoTexto();
-		txtSeguro.setBounds(495, 408, 215, 35);
-		contentPanel.add(txtSeguro);
+		cmbSeguro = new JComboBox<Detalle>();
+		cmbSeguro.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		cmbSeguro.setBounds(495, 408, 215, 35);
+		contentPanel.add(cmbSeguro);
 
-		// UBICACION
-		JLabel lblUbicacion = new JLabel("Ubicación");
-		lblUbicacion.setForeground(new Color(0, 45, 102));
-		lblUbicacion.setFont(new Font("SansSerif", Font.BOLD, 16));
-		lblUbicacion.setBounds(25, 470, 250, 25);
-		contentPanel.add(lblUbicacion);
+		// SALUD
+		JLabel lblSalud = crearEtiqueta("Salud");
+		lblSalud.setBounds(25, 470, 210, 20);
+		contentPanel.add(lblSalud);
+		txtSalud = crearCampoTexto();
+		txtSalud.setBounds(25, 493, 210, 35);
+		contentPanel.add(txtSalud);
+
+		// MIGRACIÓN
+		JLabel lblMigracion = crearEtiqueta("Migración");
+		lblMigracion.setBounds(265, 470, 200, 20);
+		contentPanel.add(lblMigracion);
+		txtMigracion = crearCampoTexto();
+		txtMigracion.setBounds(265, 493, 200, 35);
+		contentPanel.add(txtMigracion);
 
 		// PAIS
 		JLabel lblPais = crearEtiqueta("País");
-		lblPais.setBounds(25, 505, 155, 20);
+		lblPais.setBounds(495, 470, 215, 20);
 		contentPanel.add(lblPais);
 		txtPais = crearCampoTexto();
-		txtPais.setBounds(25, 528, 155, 35);
+		txtPais.setBounds(495, 493, 215, 35);
 		contentPanel.add(txtPais);
-
-		// PROVINCIA
-		JLabel lblProvincia = crearEtiqueta("Provincia");
-		lblProvincia.setBounds(195, 505, 155, 20);
-		contentPanel.add(lblProvincia);
-		txtProvincia = crearCampoTexto();
-		txtProvincia.setBounds(195, 528, 155, 35);
-		contentPanel.add(txtProvincia);
-
-		// CANTON
-		JLabel lblCanton = crearEtiqueta("Cantón");
-		lblCanton.setBounds(365, 505, 155, 20);
-		contentPanel.add(lblCanton);
-		txtCanton = crearCampoTexto();
-		txtCanton.setBounds(365, 528, 155, 35);
-		contentPanel.add(txtCanton);
-
-		// DISTRITO
-		JLabel lblDistrito = crearEtiqueta("Distrito");
-		lblDistrito.setBounds(535, 505, 175, 20);
-		contentPanel.add(lblDistrito);
-		txtDistrito = crearCampoTexto();
-		txtDistrito.setBounds(535, 528, 175, 35);
-		contentPanel.add(txtDistrito);
-
-		// DIRECCION
-		JLabel lblDireccion = crearEtiqueta("Dirección");
-		lblDireccion.setBounds(25, 575, 200, 20);
-		contentPanel.add(lblDireccion);
-
-		txtDireccion = new JTextArea();
-		txtDireccion.setFont(new Font("SansSerif", Font.PLAIN, 12));
-		txtDireccion.setLineWrap(true);
-		txtDireccion.setWrapStyleWord(true);
-
-		JScrollPane scrollDireccion = new JScrollPane(txtDireccion);
-		scrollDireccion.setBounds(25, 598, 685, 55);
-		contentPanel.add(scrollDireccion);
 
 		// CANCELAR
 		JButton btnCancelar = new JButton("Cancelar");
@@ -324,6 +325,15 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnGuardar.setBounds(535, 665, 175, 40);
 		contentPanel.add(btnGuardar);
+
+		if (modoEdicion) {
+
+			cmbTipoIdentificacion.setEnabled(false);
+			txtIdentificacion.setEditable(false);
+			txtNombre.setEditable(false);
+			txtApellidos.setEditable(false);
+			txtFechaNacimiento.setEditable(false);
+		}
 
 		// EVENTOS
 		btnCancelar.addActionListener(new ActionListener() {
@@ -389,15 +399,80 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 
 	private void cargarGeneros() {
 
-		cmbGenero.removeAllItems();
-		cmbGenero.addItem(null);
+		try {
 
-		Genero[] generos = Genero.values();
+			cmbGenero.removeAllItems();
 
-		for (int i = 0; i < generos.length; i++) {
+			Maestro catalogoGenero = maestroController.buscarPorNombre("Genero");
 
-			cmbGenero.addItem(generos[i]);
+			if (catalogoGenero == null) {
+
+				JOptionPane.showMessageDialog(this,
+						"No se encontró el catálogo 'Genero'. Verifique que esté registrado.", "Catálogo no encontrado",
+						JOptionPane.WARNING_MESSAGE);
+
+				return;
+			}
+
+			List<Detalle> generos = detalleController.listarPorMaestro(catalogoGenero.getIdMaestro());
+
+			for (Detalle detalle : generos) {
+
+				cmbGenero.addItem(detalle);
+			}
+
+			cmbGenero.setSelectedIndex(-1);
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			JOptionPane.showMessageDialog(this, "No fue posible cargar los géneros.", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	private void cargarCatalogos() {
+
+		cargarCatalogo(CATALOGO_PARENTESCO, cmbParentesco);
+		cargarCatalogo(CATALOGO_NIVEL_EDUCATIVO, cmbNivelEducativo);
+		cargarCatalogo(CATALOGO_SEGURO, cmbSeguro);
+		cargarCatalogo(CATALOGO_GENERO, cmbGenero);
+	}
+
+	private void cargarCatalogo(String nombreCatalogo, JComboBox<Detalle> combo) {
+
+		combo.removeAllItems();
+
+		Maestro maestro = maestroController.buscarPorNombre(nombreCatalogo);
+
+		if (maestro == null) {
+
+			JOptionPane.showMessageDialog(this,
+					"No se encontró el catálogo '" + nombreCatalogo + "'. Verifique que esté registrado en Main.java.",
+					"Catálogo no encontrado", JOptionPane.WARNING_MESSAGE);
+
+			return;
+		}
+
+		List<Detalle> detalles = detalleController.listarPorMaestro(maestro.getIdMaestro());
+
+		for (Detalle detalle : detalles) {
+
+			combo.addItem(detalle);
+		}
+	}
+
+	private List<Detalle> obtenerDetallesDelCatalogo(String nombreCatalogo) {
+
+		Maestro catalogo = maestroController.buscarPorNombre(nombreCatalogo);
+
+		if (catalogo == null) {
+
+			return new java.util.ArrayList<Detalle>();
+		}
+
+		return detalleController.listarPorMaestro(catalogo.getIdMaestro());
 	}
 
 	private void cargarDatos() {
@@ -411,7 +486,9 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		}
 
 		txtIdentificacion.setText(integrante.getIdentificacion() != null ? integrante.getIdentificacion() : "");
+
 		txtNombre.setText(integrante.getNombre() != null ? integrante.getNombre() : "");
+
 		txtApellidos.setText(integrante.getApellidos() != null ? integrante.getApellidos() : "");
 
 		if (integrante.getFechaNacimiento() != null) {
@@ -421,29 +498,47 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 			txtFechaNacimiento.setText(formato.format(integrante.getFechaNacimiento()));
 		}
 
-		if (integrante.getGenero() != null) {
-			cmbGenero.setSelectedItem(integrante.getGenero());
+		if (integrante.getDetalleGenero() != null) {
+
+			for (int i = 0; i < cmbGenero.getItemCount(); i++) {
+
+				Detalle detalle = cmbGenero.getItemAt(i);
+
+				if (detalle != null && detalle.getIdDetalle() == integrante.getDetalleGenero().getIdDetalle()) {
+
+					cmbGenero.setSelectedIndex(i);
+					break;
+				}
+			}
 		}
 
 		if (integrante.isJefeHogar()) {
-
 			rdbSiJefeHogar.setSelected(true);
-
 		} else {
-
 			rdbNoJefeHogar.setSelected(true);
 		}
 
-		txtParentesco.setText(integrante.getParentesco() != null ? integrante.getParentesco() : "");
+		if (integrante.getDetalleParentesco() != null) {
+			cmbParentesco.setSelectedItem(integrante.getDetalleParentesco());
+		}
+
 		txtTelefono.setText(integrante.getTelefono() != null ? integrante.getTelefono() : "");
+
 		txtCorreo.setText(integrante.getCorreoElectronico() != null ? integrante.getCorreoElectronico() : "");
-		txtNivelEducativo.setText(integrante.getNivelEducativo() != null ? integrante.getNivelEducativo() : "");
-		txtSeguro.setText(integrante.getSeguro() != null ? integrante.getSeguro() : "");
+
+		if (integrante.getDetalleNivelEducativo() != null) {
+			cmbNivelEducativo.setSelectedItem(integrante.getDetalleNivelEducativo());
+		}
+
+		if (integrante.getDetalleSeguro() != null) {
+			cmbSeguro.setSelectedItem(integrante.getDetalleSeguro());
+		}
+
+		txtSalud.setText(integrante.getSalud() != null ? integrante.getSalud() : "");
+
+		txtMigracion.setText(integrante.getMigracion() != null ? integrante.getMigracion() : "");
+
 		txtPais.setText(integrante.getPais() != null ? integrante.getPais() : "");
-		txtProvincia.setText(integrante.getProvincia() != null ? integrante.getProvincia() : "");
-		txtCanton.setText(integrante.getCanton() != null ? integrante.getCanton() : "");
-		txtDistrito.setText(integrante.getDistrito() != null ? integrante.getDistrito() : "");
-		txtDireccion.setText(integrante.getDireccion() != null ? integrante.getDireccion() : "");
 	}
 
 	private void configurarDeteccionCambios() {
@@ -463,6 +558,9 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		txtCorreo.addKeyListener(cambioTexto);
 		txtTelefono.addKeyListener(cambioTexto);
 		txtFechaNacimiento.addKeyListener(cambioTexto);
+		txtSalud.addKeyListener(cambioTexto);
+		txtMigracion.addKeyListener(cambioTexto);
+		txtPais.addKeyListener(cambioTexto);
 
 		ActionListener cambioCombo = new ActionListener() {
 
@@ -475,6 +573,9 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 
 		cmbTipoIdentificacion.addActionListener(cambioCombo);
 		cmbGenero.addActionListener(cambioCombo);
+		cmbParentesco.addActionListener(cambioCombo);
+		cmbNivelEducativo.addActionListener(cambioCombo);
+		cmbSeguro.addActionListener(cambioCombo);
 	}
 
 	private void intentarCerrar() {
@@ -532,6 +633,7 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 				integranteGuardar = new IntegranteFamiliar();
 				integranteGuardar.setCasoSocial(casoSocial);
 				integranteGuardar.setEstado(true);
+
 			}
 
 			// ASIGNAR DATOS DEL FORMULARIO
@@ -540,18 +642,16 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 			integranteGuardar.setNombre(txtNombre.getText().trim());
 			integranteGuardar.setApellidos(txtApellidos.getText().trim());
 			integranteGuardar.setFechaNacimiento(obtenerFechaNacimiento());
-			integranteGuardar.setGenero((Genero) cmbGenero.getSelectedItem());
+			integranteGuardar.setDetalleGenero((Detalle) cmbGenero.getSelectedItem());
 			integranteGuardar.setJefeHogar(rdbSiJefeHogar.isSelected());
-			integranteGuardar.setParentesco(txtParentesco.getText().trim());
+			integranteGuardar.setDetalleParentesco((Detalle) cmbParentesco.getSelectedItem());
 			integranteGuardar.setTelefono(txtTelefono.getText().trim());
 			integranteGuardar.setCorreoElectronico(txtCorreo.getText().trim());
-			integranteGuardar.setNivelEducativo(txtNivelEducativo.getText().trim());
-			integranteGuardar.setSeguro(txtSeguro.getText().trim());
+			integranteGuardar.setDetalleNivelEducativo((Detalle) cmbNivelEducativo.getSelectedItem());
+			integranteGuardar.setDetalleSeguro((Detalle) cmbSeguro.getSelectedItem());
+			integranteGuardar.setSalud(txtSalud.getText().trim());
+			integranteGuardar.setMigracion(txtMigracion.getText().trim());
 			integranteGuardar.setPais(txtPais.getText().trim());
-			integranteGuardar.setProvincia(txtProvincia.getText().trim());
-			integranteGuardar.setCanton(txtCanton.getText().trim());
-			integranteGuardar.setDistrito(txtDistrito.getText().trim());
-			integranteGuardar.setDireccion(txtDireccion.getText().trim());
 
 			// GUARDAR EN BASE DE DATOS
 			if (modoEdicion) {
@@ -620,6 +720,23 @@ public class IntegranteFamiliarFormDialog extends JDialog {
 		if (!correo.isEmpty() && !correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
 
 			throw new IllegalArgumentException("El correo electrónico no tiene un formato válido.");
+		}
+
+		if (cmbGenero.getSelectedItem() == null) {
+
+			throw new IllegalArgumentException("Debe seleccionar el género.");
+		}
+
+		if (cmbParentesco.getSelectedItem() == null) {
+			throw new IllegalArgumentException("Debe seleccionar el parentesco.");
+		}
+
+		if (cmbNivelEducativo.getSelectedItem() == null) {
+			throw new IllegalArgumentException("Debe seleccionar el nivel educativo.");
+		}
+
+		if (cmbSeguro.getSelectedItem() == null) {
+			// Es opcional
 		}
 	}
 

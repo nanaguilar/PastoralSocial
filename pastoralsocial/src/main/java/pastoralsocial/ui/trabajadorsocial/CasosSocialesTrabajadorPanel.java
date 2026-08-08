@@ -158,7 +158,7 @@ public class CasosSocialesTrabajadorPanel extends JPanel {
 
 		modeloTabla.addRow(new Object[] {
 
-				caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getEstado(),
+				caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
 				caso.getParroquia() });
 	}
 
@@ -196,9 +196,10 @@ public class CasosSocialesTrabajadorPanel extends JPanel {
 					coincide = true;
 				}
 
-				if (caso.getEstado() != null && caso.getEstado().toString().toLowerCase().contains(busqueda)) {
+				if (caso.getDetalleEstado() != null
+				        && caso.getDetalleEstado().toString().toLowerCase().contains(busqueda)) {
 
-					coincide = true;
+				    coincide = true;
 				}
 
 				if (coincide) {

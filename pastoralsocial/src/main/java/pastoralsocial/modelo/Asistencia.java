@@ -36,12 +36,33 @@ public class Asistencia {
 	@Column(name = "observaciones", columnDefinition = "TEXT")
 	private String observaciones;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaProlongacion1")
+	private Date fechaProlongacion1;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaProlongacion2")
+	private Date fechaProlongacion2;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaProlongacion3")
+	private Date fechaProlongacion3;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaProlongacion4")
+	private Date fechaProlongacion4;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "fechaProlongacion5")
+	private Date fechaProlongacion5;
+
 	@ManyToOne
 	@JoinColumn(name = "idCasoSocial", nullable = false)
 	private CasoSocial casoSocial;
 
 	// Antes era: @ManyToOne TipoAsistencia tipoAsistencia;
-	// Ahora apunta a Detalle (el valor concreto dentro del catalogo "Tipo de Asistencia")
+	// Ahora apunta a Detalle (el valor concreto dentro del catalogo "Tipo de
+	// Asistencia")
 	@ManyToOne
 	@JoinColumn(name = "idDetalleTipoAsistencia", nullable = false)
 	private Detalle detalleTipoAsistencia;
@@ -117,6 +138,46 @@ public class Asistencia {
 
 	public void setObservaciones(String observaciones) {
 		this.observaciones = observaciones;
+	}
+
+	public Date getFechaProlongacion1() {
+		return fechaProlongacion1;
+	}
+
+	public void setFechaProlongacion1(Date fechaProlongacion1) {
+		this.fechaProlongacion1 = fechaProlongacion1;
+	}
+
+	public Date getFechaProlongacion2() {
+		return fechaProlongacion2;
+	}
+
+	public void setFechaProlongacion2(Date fechaProlongacion2) {
+		this.fechaProlongacion2 = fechaProlongacion2;
+	}
+
+	public Date getFechaProlongacion3() {
+		return fechaProlongacion3;
+	}
+
+	public void setFechaProlongacion3(Date fechaProlongacion3) {
+		this.fechaProlongacion3 = fechaProlongacion3;
+	}
+
+	public Date getFechaProlongacion4() {
+		return fechaProlongacion4;
+	}
+
+	public void setFechaProlongacion4(Date fechaProlongacion4) {
+		this.fechaProlongacion4 = fechaProlongacion4;
+	}
+
+	public Date getFechaProlongacion5() {
+		return fechaProlongacion5;
+	}
+
+	public void setFechaProlongacion5(Date fechaProlongacion5) {
+		this.fechaProlongacion5 = fechaProlongacion5;
 	}
 
 	public CasoSocial getCasoSocial() {

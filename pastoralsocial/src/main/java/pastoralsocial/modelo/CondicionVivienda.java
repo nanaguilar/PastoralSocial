@@ -1,7 +1,5 @@
 package pastoralsocial.modelo;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -20,8 +18,8 @@ public class CondicionVivienda {
 	@Column(name = "descripcion", nullable = false, unique = true)
 	private String descripcion;
 
-	@OneToMany(mappedBy = "condicionVivienda")
-	private List<CasoSocial> casosSociales = new ArrayList<>();
+//	@OneToMany(mappedBy = "condicionVivienda")
+//	private List<CasoSocial> casosSociales = new ArrayList<>();
 
 	public CondicionVivienda() {
 	}
@@ -46,13 +44,13 @@ public class CondicionVivienda {
 		this.descripcion = descripcion;
 	}
 
-	public List<CasoSocial> getCasosSociales() {
-		return casosSociales;
-	}
-
-	public void setCasosSociales(List<CasoSocial> casosSociales) {
-		this.casosSociales = casosSociales;
-	}
+//	public List<CasoSocial> getCasosSociales() {
+//		return casosSociales;
+//	}
+//
+//	public void setCasosSociales(List<CasoSocial> casosSociales) {
+//		this.casosSociales = casosSociales;
+//	}
 
 	@Override
 	public String toString() {

@@ -38,36 +38,33 @@ public class IntegranteFamiliar {
 	@Column(name = "correoElectronico")
 	private String correoElectronico;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "genero")
-	private Genero genero;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleGenero", nullable = false)
+	private Detalle detalleGenero;
 
 	@Column(name = "jefeHogar", nullable = false)
 	private boolean jefeHogar;
 
-	@Column(name = "parentesco")
-	private String parentesco;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleParentesco", nullable = false)
+	private Detalle detalleParentesco;
 
-	@Column(name = "nivelEducativo")
-	private String nivelEducativo;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleNivelEducativo", nullable = false)
+	private Detalle detalleNivelEducativo;
 
-	@Column(name = "seguro")
-	private String seguro;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleSeguro")
+	private Detalle detalleSeguro;
+
+	@Column(name = "salud")
+	private String salud;
+
+	@Column(name = "migracion")
+	private String migracion;
 
 	@Column(name = "pais")
 	private String pais;
-
-	@Column(name = "provincia")
-	private String provincia;
-
-	@Column(name = "canton")
-	private String canton;
-
-	@Column(name = "distrito")
-	private String distrito;
-
-	@Column(name = "direccion")
-	private String direccion;
 
 	@Column(name = "estado", nullable = false)
 	private boolean estado;
@@ -80,9 +77,9 @@ public class IntegranteFamiliar {
 	}
 
 	public IntegranteFamiliar(String identificacion, String tipoIdentificacion, String nombre, String apellidos,
-			Date fechaNacimiento, String telefono, String correoElectronico, Genero genero, boolean jefeHogar,
-			String parentesco, String nivelEducativo, String seguro, String pais, String provincia, String canton,
-			String distrito, String direccion, boolean estado, CasoSocial casoSocial) {
+			Date fechaNacimiento, String telefono, String correoElectronico, Detalle detalleGenero, boolean jefeHogar,
+			Detalle detalleParentesco, Detalle detalleNivelEducativo, Detalle detalleSeguro, String salud,
+			String migracion, String pais, boolean estado, CasoSocial casoSocial) {
 
 		this.identificacion = identificacion;
 		this.tipoIdentificacion = tipoIdentificacion;
@@ -91,16 +88,16 @@ public class IntegranteFamiliar {
 		this.fechaNacimiento = fechaNacimiento;
 		this.telefono = telefono;
 		this.correoElectronico = correoElectronico;
-		this.genero = genero;
+		this.detalleGenero = detalleGenero;
 		this.jefeHogar = jefeHogar;
-		this.parentesco = parentesco;
-		this.nivelEducativo = nivelEducativo;
-		this.seguro = seguro;
+
+		this.detalleParentesco = detalleParentesco;
+		this.detalleNivelEducativo = detalleNivelEducativo;
+		this.detalleSeguro = detalleSeguro;
+
+		this.salud = salud;
+		this.migracion = migracion;
 		this.pais = pais;
-		this.provincia = provincia;
-		this.canton = canton;
-		this.distrito = distrito;
-		this.direccion = direccion;
 		this.estado = estado;
 
 		this.casoSocial = casoSocial;
@@ -170,12 +167,12 @@ public class IntegranteFamiliar {
 		this.correoElectronico = correoElectronico;
 	}
 
-	public Genero getGenero() {
-		return genero;
+	public Detalle getDetalleGenero() {
+		return detalleGenero;
 	}
 
-	public void setGenero(Genero genero) {
-		this.genero = genero;
+	public void setDetalleGenero(Detalle detalleGenero) {
+		this.detalleGenero = detalleGenero;
 	}
 
 	public boolean isJefeHogar() {
@@ -186,28 +183,44 @@ public class IntegranteFamiliar {
 		this.jefeHogar = jefeHogar;
 	}
 
-	public String getParentesco() {
-		return parentesco;
+	public Detalle getDetalleParentesco() {
+		return detalleParentesco;
 	}
 
-	public void setParentesco(String parentesco) {
-		this.parentesco = parentesco;
+	public void setDetalleParentesco(Detalle detalleParentesco) {
+		this.detalleParentesco = detalleParentesco;
 	}
 
-	public String getNivelEducativo() {
-		return nivelEducativo;
+	public Detalle getDetalleNivelEducativo() {
+		return detalleNivelEducativo;
 	}
 
-	public void setNivelEducativo(String nivelEducativo) {
-		this.nivelEducativo = nivelEducativo;
+	public void setDetalleNivelEducativo(Detalle detalleNivelEducativo) {
+		this.detalleNivelEducativo = detalleNivelEducativo;
 	}
 
-	public String getSeguro() {
-		return seguro;
+	public Detalle getDetalleSeguro() {
+		return detalleSeguro;
 	}
 
-	public void setSeguro(String seguro) {
-		this.seguro = seguro;
+	public void setDetalleSeguro(Detalle detalleSeguro) {
+		this.detalleSeguro = detalleSeguro;
+	}
+
+	public String getSalud() {
+		return salud;
+	}
+
+	public void setSalud(String salud) {
+		this.salud = salud;
+	}
+
+	public String getMigracion() {
+		return migracion;
+	}
+
+	public void setMigracion(String migracion) {
+		this.migracion = migracion;
 	}
 
 	public String getPais() {
@@ -216,38 +229,6 @@ public class IntegranteFamiliar {
 
 	public void setPais(String pais) {
 		this.pais = pais;
-	}
-
-	public String getProvincia() {
-		return provincia;
-	}
-
-	public void setProvincia(String provincia) {
-		this.provincia = provincia;
-	}
-
-	public String getCanton() {
-		return canton;
-	}
-
-	public void setCanton(String canton) {
-		this.canton = canton;
-	}
-
-	public String getDistrito() {
-		return distrito;
-	}
-
-	public void setDistrito(String distrito) {
-		this.distrito = distrito;
-	}
-
-	public String getDireccion() {
-		return direccion;
-	}
-
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
 	}
 
 	public boolean isEstado() {

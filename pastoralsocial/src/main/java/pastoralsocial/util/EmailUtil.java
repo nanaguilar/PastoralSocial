@@ -49,7 +49,7 @@ public class EmailUtil {
 					+ "<tr>" + "<td style='background:#002d66;padding:28px;text-align:center;'>"
 					+ "<h1 style='margin:0;color:white;font-size:28px;'>SIGCAS</h1>"
 					+ "<p style='margin:6px 0 0;color:#d9e6f7;font-size:14px;'>"
-					+ "Sistema de Gestión de Asistencia Social" + "</p>" + "</td>" + "</tr>"
+					+ "Sistema Integral de Gestión de Casos Sociales" + "</p>" + "</td>" + "</tr>"
 
 					// Contenido
 					+ "<tr>" + "<td style='padding:35px;'>"
@@ -78,7 +78,7 @@ public class EmailUtil {
 					// Pie
 					+ "<tr>" + "<td style='background:#f4f6f9;" + "padding:20px;" + "text-align:center;"
 					+ "font-size:12px;" + "color:#777;'>" + "<strong>SIGCAS</strong><br>"
-					+ "Sistema de Gestión de Asistencia Social<br><br>"
+					+ "Sistema Integral de Gestión de Casos Sociales<br><br>"
 					+ "Este es un correo automático. Por favor, no responda a este mensaje." + "</td>" + "</tr>"
 					+ "</table>" + "</td></tr>" + "</table>" + "</body>" + "</html>";
 
@@ -95,4 +95,177 @@ public class EmailUtil {
 			return false;
 		}
 	}
+
+	public static boolean enviarCorreoRegistro(String correoDestino, String nombre, String username) {
+
+		Properties props = new Properties();
+
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+		Session session = Session.getInstance(props, new Authenticator() {
+
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(REMITENTE, CLAVE_APLICACION);
+			}
+		});
+
+		try {
+
+			Message message = new MimeMessage(session);
+
+			message.setFrom(new InternetAddress(REMITENTE, "Pastoral Social"));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(correoDestino));
+
+			message.setSubject("SIGCAS - Registro de usuario");
+
+			String cuerpoHtml = "<!DOCTYPE html>" + "<html>"
+					+ "<body style='margin:0;padding:0;background:#f5f7fb;font-family:Segoe UI,Arial,sans-serif;'>"
+					+ "<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px;'>"
+					+ "<tr><td align='center'>" + "<table width='600' cellpadding='0' cellspacing='0' "
+					+ "style='background:#ffffff;border-radius:10px;overflow:hidden;" + "border:1px solid #dfe6ee;'>"
+
+					// ENCABEZADO
+					+ "<tr>" + "<td style='background:#002d66;padding:28px;text-align:center;'>"
+					+ "<h1 style='margin:0;color:white;font-size:28px;'>SIGCAS</h1>"
+					+ "<p style='margin:6px 0 0;color:#d9e6f7;font-size:14px;'>"
+					+ "Sistema Integral de Gestión de Casos Sociales" + "</p>" + "</td>" + "</tr>"
+
+					// CONTENIDO
+					+ "<tr>" + "<td style='padding:35px;'>"
+					+ "<h2 style='margin-top:0;color:#002d66;'>Registro de usuario</h2>"
+					+ "<p style='font-size:15px;color:#444;'>" + "Hola <strong>" + nombre + "</strong>," + "</p>"
+					+ "<p style='font-size:15px;color:#444;line-height:1.6;'>"
+					+ "Su cuenta de usuario ha sido registrada correctamente "
+					+ "en el sistema <strong>SIGCAS</strong>." + "</p>"
+
+					// USUARIO
+					+ "<div style='background:#eef4ff;" + "border:1px solid #d5e3f7;" + "border-radius:8px;"
+					+ "padding:18px;" + "margin:25px 0;'>" + "<p style='margin:0 0 8px;color:#555;font-size:14px;'>"
+					+ "<strong>Nombre de usuario</strong>" + "</p>" + "<p style='margin:0;color:#002d66;"
+					+ "font-size:22px;font-weight:bold;'>" + username + "</p>" + "</div>"
+
+					// IMPORTANTE
+					+ "<div style='background:#f7f9fc;" + "border-left:5px solid #002d66;" + "padding:15px;"
+					+ "margin:25px 0;'>" + "<strong style='color:#002d66;'>Importante</strong><br>"
+					+ "<span style='color:#555;font-size:14px;line-height:1.6;'>"
+					+ "Por motivos de seguridad, recuerde realizar el "
+					+ "<strong>cambio de contraseña</strong> correspondiente " + "después de iniciar sesión."
+					+ "</span>" + "</div>" + "<p style='font-size:14px;color:#666;line-height:1.6;'>"
+					+ "Si usted no reconoce este registro, comuníquese con " + "el administrador del sistema." + "</p>"
+
+					+ "</td>" + "</tr>"
+
+					// PIE
+					+ "<tr>" + "<td style='background:#f4f6f9;" + "padding:20px;" + "text-align:center;"
+					+ "font-size:12px;" + "color:#777;'>" + "<strong>SIGCAS</strong><br>"
+					+ "Sistema Integral de Gestión de Casos Sociales<br><br>"
+					+ "Este es un correo automático. Por favor, no responda a este mensaje." + "</td>" + "</tr>"
+					+ "</table>" + "</td></tr>" + "</table>" + "</body>" + "</html>";
+
+			message.setContent(cuerpoHtml, "text/html; charset=utf-8");
+
+			Transport.send(message);
+
+			return true;
+
+		} catch (MessagingException e) {
+
+			e.printStackTrace();
+			return false;
+
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public static boolean enviarNotificacionCambioCorreo(String correoDestino, String nombre) {
+
+		Properties props = new Properties();
+
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+		Session session = Session.getInstance(props, new Authenticator() {
+
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+
+				return new PasswordAuthentication(REMITENTE, CLAVE_APLICACION);
+			}
+		});
+
+		try {
+
+			Message message = new MimeMessage(session);
+
+			message.setFrom(new InternetAddress(REMITENTE, "Pastoral Social"));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(correoDestino));
+
+			message.setSubject("SIGCAS - Correo electrónico actualizado");
+
+			String cuerpoHtml = "<!DOCTYPE html>" + "<html>"
+					+ "<body style='margin:0;padding:0;background:#f5f7fb;font-family:Segoe UI,Arial,sans-serif;'>"
+					+ "<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px;'>"
+					+ "<tr><td align='center'>" + "<table width='600' cellpadding='0' cellspacing='0' "
+					+ "style='background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #dfe6ee;'>"
+
+					// Encabezado
+					+ "<tr>" + "<td style='background:#002d66;padding:28px;text-align:center;'>"
+					+ "<h1 style='margin:0;color:white;font-size:28px;'>SIGCAS</h1>"
+					+ "<p style='margin:6px 0 0;color:#d9e6f7;font-size:14px;'>"
+					+ "Sistema Integral de Gestión de Casos Sociales" + "</p>" + "</td>" + "</tr>"
+
+					// Contenido
+					+ "<tr>" + "<td style='padding:35px;'>"
+					+ "<h2 style='margin-top:0;color:#002d66;'>Correo electrónico actualizado</h2>"
+					+ "<p style='font-size:15px;color:#444;'>" + "Hola <strong>" + nombre + "</strong>," + "</p>"
+					+ "<p style='font-size:15px;color:#444;line-height:1.6;'>"
+					+ "La dirección de correo electrónico asociada a su cuenta "
+					+ "de <strong>SIGCAS</strong> ha sido actualizada correctamente." + "</p>"
+
+					// Aviso
+					+ "<div style='background:#f7f9fc;" + "border-left:5px solid #002d66;"
+					+ "padding:15px;margin:25px 0;'>" + "<strong style='color:#002d66;'>Importante</strong><br>"
+					+ "<span style='color:#555;font-size:14px;line-height:1.6;'>"
+					+ "Este correo será utilizado para futuras notificaciones "
+					+ "y para la recuperación de contraseña." + "</span>" + "</div>"
+					+ "<p style='font-size:14px;color:#666;line-height:1.6;'>"
+					+ "Si usted no realizó este cambio, comuníquese con " + "el administrador del sistema." + "</p>"
+					+ "</td>" + "</tr>"
+
+					// Pie
+					+ "<tr>" + "<td style='background:#f4f6f9;padding:20px;text-align:center;"
+					+ "font-size:12px;color:#777;'>" + "<strong>SIGCAS</strong><br>"
+					+ "Sistema Integral de Gestión de Casos Sociales<br><br>"
+					+ "Este es un correo automático. Por favor, no responda a este mensaje." + "</td>" + "</tr>"
+					+ "</table>" + "</td></tr>" + "</table>" + "</body>" + "</html>";
+
+			message.setContent(cuerpoHtml, "text/html; charset=utf-8");
+
+			Transport.send(message);
+
+			return true;
+
+		} catch (MessagingException e) {
+
+			e.printStackTrace();
+			return false;
+
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 }

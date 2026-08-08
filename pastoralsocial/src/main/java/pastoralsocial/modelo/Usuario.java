@@ -46,9 +46,9 @@ public class Usuario {
 	@Column(name = "password", nullable = false)
 	private String password;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "genero")
-	private Genero genero;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleGenero", nullable = false)
+	private Detalle detalleGenero;
 
 	@Column(name = "estado")
 	private boolean estado;
@@ -61,8 +61,8 @@ public class Usuario {
 	private Date tokenExpiration;
 
 	@ManyToOne
-	@JoinColumn(name = "idRol", nullable = false)
-	private Rol rol;
+	@JoinColumn(name = "idDetalleRol", nullable = false)
+	private Detalle detalleRol;
 
 	@OneToMany(mappedBy = "usuario")
 	private List<CasoSocial> casosSociales = new ArrayList<>();
@@ -72,7 +72,7 @@ public class Usuario {
 
 	public Usuario(String identificacion, String tipoIdentificacion, String nombre, String apellidos,
 			Date fechaNacimiento, String telefono, String correoElectronico, String username, String password,
-			Genero genero, boolean estado, Rol rol) {
+			Detalle detalleGenero, boolean estado, Detalle detalleRol) {
 
 		this.identificacion = identificacion;
 		this.tipoIdentificacion = tipoIdentificacion;
@@ -83,10 +83,9 @@ public class Usuario {
 		this.correoElectronico = correoElectronico;
 		this.username = username;
 		this.password = password;
-		this.genero = genero;
+		this.detalleGenero = detalleGenero;
 		this.estado = estado;
-
-		this.rol = rol;
+		this.detalleRol = detalleRol;
 	}
 
 	public int getIdUsuario() {
@@ -169,12 +168,12 @@ public class Usuario {
 		this.password = password;
 	}
 
-	public Genero getGenero() {
-		return genero;
+	public Detalle getDetalleGenero() {
+		return detalleGenero;
 	}
 
-	public void setGenero(Genero genero) {
-		this.genero = genero;
+	public void setDetalleGenero(Detalle detalleGenero) {
+		this.detalleGenero = detalleGenero;
 	}
 
 	public boolean getEstado() {
@@ -185,12 +184,12 @@ public class Usuario {
 		this.estado = estado;
 	}
 
-	public Rol getRol() {
-		return rol;
+	public Detalle getDetalleRol() {
+		return detalleRol;
 	}
 
-	public void setRol(Rol rol) {
-		this.rol = rol;
+	public void setDetalleRol(Detalle detalleRol) {
+		this.detalleRol = detalleRol;
 	}
 
 	public List<CasoSocial> getCasosSociales() {

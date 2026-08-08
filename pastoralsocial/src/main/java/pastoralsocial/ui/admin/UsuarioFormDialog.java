@@ -12,25 +12,32 @@ import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JFormattedTextField;
 import javax.swing.text.MaskFormatter;
 
 import pastoralsocial.controller.UsuarioController;
-import pastoralsocial.dao.RolDAO;
-import pastoralsocial.modelo.Rol;
-import pastoralsocial.modelo.Genero;
+import pastoralsocial.controller.DetalleController;
+import pastoralsocial.controller.MaestroController;
+import pastoralsocial.modelo.Detalle;
+import pastoralsocial.modelo.Maestro;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.EmailUtil;
 
 public class UsuarioFormDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final String CATALOGO_ROL = "Rol";
+	private static final String CATALOGO_GENERO = "Genero";
 
 	private JPanel contentPanel;
 
@@ -41,16 +48,18 @@ public class UsuarioFormDialog extends JDialog {
 	private JTextField txtCorreo;
 	private JTextField txtTelefono;
 	private JFormattedTextField txtFechaNacimiento;
-	private JComboBox<Genero> cmbGenero;
+	private JComboBox<Detalle> cmbGenero;
 	private JTextField txtUsername;
-	private JTextField txtPassword;
-	private JComboBox<Rol> cmbRol;
+	private JPasswordField txtPassword;
+	private JCheckBox chkMostrarPassword;
+	private JComboBox<Detalle> cmbRol;
 	private JButton btnCancelar;
 	private JButton btnGuardar;
 	private JLabel lblTitulo;
 
 	private final UsuarioController usuarioController;
-	private final RolDAO rolDAO;
+	private final DetalleController detalleController;
+	private final MaestroController maestroController;
 
 	private Usuario usuarioEditar;
 
@@ -68,12 +77,16 @@ public class UsuarioFormDialog extends JDialog {
 		super(parent, true);
 
 		this.usuarioController = new UsuarioController();
-		this.rolDAO = new RolDAO();
+
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
+
 		this.usuarioEditar = usuarioEditar;
 		this.operacionRealizada = false;
 
 		inicializarInterfaz();
 		cargarRoles();
+		cargarGeneros();
 
 		if (usuarioEditar == null) {
 
@@ -230,14 +243,11 @@ public class UsuarioFormDialog extends JDialog {
 		lblGenero.setBounds(365, 365, 280, 25);
 		contentPanel.add(lblGenero);
 
-		cmbGenero = new JComboBox<Genero>();
+		cmbGenero = new JComboBox<Detalle>();
 		cmbGenero.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbGenero.setBounds(365, 390, 280, 35);
-
-		for (Genero genero : Genero.values()) {
-			cmbGenero.addItem(genero);
-		}
-
+		cmbGenero.setSelectedIndex(-1);
+		contentPanel.add(cmbGenero);
 		cmbGenero.setSelectedIndex(-1);
 		contentPanel.add(cmbGenero);
 
@@ -269,12 +279,21 @@ public class UsuarioFormDialog extends JDialog {
 		lblPassword.setBounds(365, 475, 280, 25);
 		contentPanel.add(lblPassword);
 
-		txtPassword = new JTextField();
+		txtPassword = new JPasswordField();
 		txtPassword.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		txtPassword.setForeground(new Color(0, 45, 102));
 		txtPassword.setBounds(365, 500, 280, 35);
-		txtPassword.setColumns(10);
+		txtPassword.setEchoChar('•');
 		contentPanel.add(txtPassword);
+
+		// CHECKBOX MOSTRAR CONTRASEÑA
+		chkMostrarPassword = new JCheckBox("Mostrar contraseña");
+		chkMostrarPassword.setFont(new Font("SansSerif", Font.PLAIN, 11));
+		chkMostrarPassword.setForeground(new Color(0, 45, 102));
+		chkMostrarPassword.setBackground(new Color(245, 247, 250));
+		chkMostrarPassword.setBounds(365, 538, 180, 25);
+		chkMostrarPassword.setFocusPainted(false);
+		contentPanel.add(chkMostrarPassword);
 
 		// ROL
 		JLabel lblRol = new JLabel("Rol");
@@ -283,7 +302,7 @@ public class UsuarioFormDialog extends JDialog {
 		lblRol.setBounds(40, 550, 280, 25);
 		contentPanel.add(lblRol);
 
-		cmbRol = new JComboBox<Rol>();
+		cmbRol = new JComboBox<>();
 		cmbRol.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbRol.setBounds(40, 575, 280, 35);
 		contentPanel.add(cmbRol);
@@ -307,6 +326,22 @@ public class UsuarioFormDialog extends JDialog {
 		contentPanel.add(btnGuardar);
 
 		// EVENTOS
+		chkMostrarPassword.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				if (chkMostrarPassword.isSelected()) {
+
+					txtPassword.setEchoChar((char) 0);
+
+				} else {
+
+					txtPassword.setEchoChar('•');
+				}
+			}
+		});
+
 		btnCancelar.addActionListener(new ActionListener() {
 
 			@Override
@@ -342,6 +377,16 @@ public class UsuarioFormDialog extends JDialog {
 		lblTitulo.setText("Nuevo usuario");
 
 		btnGuardar.setText("Guardar usuario");
+
+		txtUsername.setText("");
+		txtUsername.setEditable(true);
+
+		txtPassword.setText("");
+		txtPassword.setEditable(true);
+		txtPassword.setEchoChar('•');
+
+		chkMostrarPassword.setVisible(true);
+		chkMostrarPassword.setSelected(false);
 	}
 
 	private void prepararEdicion() {
@@ -351,6 +396,11 @@ public class UsuarioFormDialog extends JDialog {
 		lblTitulo.setText("Editar usuario");
 
 		btnGuardar.setText("Guardar cambios");
+
+		txtUsername.setEditable(false);
+		txtPassword.setEditable(false);
+
+		chkMostrarPassword.setVisible(false);
 
 		cargarDatosUsuario();
 	}
@@ -373,20 +423,61 @@ public class UsuarioFormDialog extends JDialog {
 		}
 	}
 
+	private void cargarGeneros() {
+
+		try {
+
+			cmbGenero.removeAllItems();
+
+			Maestro catalogoGenero = maestroController.buscarPorNombre(CATALOGO_GENERO);
+
+			if (catalogoGenero == null) {
+
+				JOptionPane.showMessageDialog(this, "No se encontró el catálogo 'Género'.", "Catálogo no encontrado",
+						JOptionPane.WARNING_MESSAGE);
+
+				return;
+			}
+
+			List<Detalle> generos = detalleController.listarPorMaestro(catalogoGenero.getIdMaestro());
+
+			for (Detalle detalle : generos) {
+				cmbGenero.addItem(detalle);
+			}
+
+			cmbGenero.setSelectedIndex(-1);
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			JOptionPane.showMessageDialog(this, "No fue posible cargar los géneros.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	private void cargarRoles() {
 
 		try {
 
 			cmbRol.removeAllItems();
 
-			List<Rol> roles = rolDAO.getAll();
+			Maestro catalogoRol = maestroController.buscarPorNombre(CATALOGO_ROL);
 
-			if (roles != null) {
+			if (catalogoRol == null) {
 
-				for (Rol rol : roles) {
+				JOptionPane.showMessageDialog(this,
+						"No se encontró el catálogo 'Rol'. Verifique que esté registrado en Main.java.",
+						"Catálogo no encontrado", JOptionPane.WARNING_MESSAGE);
 
-					cmbRol.addItem(rol);
-				}
+				return;
+			}
+
+			List<Detalle> roles = detalleController.listarPorMaestro(catalogoRol.getIdMaestro());
+
+			for (Detalle detalle : roles) {
+
+				cmbRol.addItem(detalle);
 			}
 
 			cmbRol.setSelectedIndex(-1);
@@ -412,16 +503,27 @@ public class UsuarioFormDialog extends JDialog {
 		txtCorreo.setText(usuarioEditar.getCorreoElectronico());
 		txtTelefono.setText(usuarioEditar.getTelefono());
 		txtUsername.setText(usuarioEditar.getUsername());
-		txtPassword.setText(usuarioEditar.getPassword());
+		txtPassword.setText("••••••••");
+		txtPassword.setEchoChar('•');
+		chkMostrarPassword.setVisible(false);
 
 		if (usuarioEditar.getTipoIdentificacion() != null) {
 
 			cmbTipoIdentificacion.setSelectedItem(usuarioEditar.getTipoIdentificacion());
 		}
 
-		if (usuarioEditar.getGenero() != null) {
+		if (usuarioEditar.getDetalleGenero() != null) {
 
-			cmbGenero.setSelectedItem(usuarioEditar.getGenero());
+			for (int i = 0; i < cmbGenero.getItemCount(); i++) {
+
+				Detalle detalle = cmbGenero.getItemAt(i);
+
+				if (detalle != null && detalle.getIdDetalle() == usuarioEditar.getDetalleGenero().getIdDetalle()) {
+
+					cmbGenero.setSelectedIndex(i);
+					break;
+				}
+			}
 		}
 
 		if (usuarioEditar.getFechaNacimiento() != null) {
@@ -431,19 +533,28 @@ public class UsuarioFormDialog extends JDialog {
 			txtFechaNacimiento.setText(formato.format(usuarioEditar.getFechaNacimiento()));
 		}
 
-		if (usuarioEditar.getRol() != null) {
+		if (usuarioEditar.getDetalleRol() != null) {
 
 			for (int i = 0; i < cmbRol.getItemCount(); i++) {
 
-				Rol rol = cmbRol.getItemAt(i);
+				Detalle detalle = cmbRol.getItemAt(i);
 
-				if (rol != null && rol.getIdRol() == usuarioEditar.getRol().getIdRol()) {
+				if (detalle != null && detalle.getIdDetalle() == usuarioEditar.getDetalleRol().getIdDetalle()) {
 
 					cmbRol.setSelectedIndex(i);
 
 					break;
 				}
 			}
+		}
+
+		if (usuarioEditar != null) {
+
+			txtNombre.setEditable(false);
+			txtApellidos.setEditable(false);
+			cmbTipoIdentificacion.setEnabled(false);
+			txtIdentificacion.setEditable(false);
+			txtFechaNacimiento.setEditable(false);
 		}
 	}
 
@@ -458,14 +569,33 @@ public class UsuarioFormDialog extends JDialog {
 			}
 		};
 
-		txtNombre.addKeyListener(cambioTexto);
-		txtApellidos.addKeyListener(cambioTexto);
-		txtIdentificacion.addKeyListener(cambioTexto);
-		txtCorreo.addKeyListener(cambioTexto);
-		txtTelefono.addKeyListener(cambioTexto);
-		txtFechaNacimiento.addKeyListener(cambioTexto);
-		txtUsername.addKeyListener(cambioTexto);
-		txtPassword.addKeyListener(cambioTexto);
+		if (txtNombre != null) {
+			txtNombre.addKeyListener(cambioTexto);
+		}
+
+		if (txtApellidos != null) {
+			txtApellidos.addKeyListener(cambioTexto);
+		}
+
+		if (txtCorreo != null) {
+			txtCorreo.addKeyListener(cambioTexto);
+		}
+
+		if (txtTelefono != null) {
+			txtTelefono.addKeyListener(cambioTexto);
+		}
+
+		if (txtFechaNacimiento != null) {
+			txtFechaNacimiento.addKeyListener(cambioTexto);
+		}
+
+		if (txtUsername != null) {
+			txtUsername.addKeyListener(cambioTexto);
+		}
+
+		if (txtPassword != null) {
+			txtPassword.addKeyListener(cambioTexto);
+		}
 
 		ActionListener cambioCombo = new ActionListener() {
 
@@ -476,9 +606,17 @@ public class UsuarioFormDialog extends JDialog {
 			}
 		};
 
-		cmbTipoIdentificacion.addActionListener(cambioCombo);
-		cmbGenero.addActionListener(cambioCombo);
-		cmbRol.addActionListener(cambioCombo);
+		if (cmbTipoIdentificacion != null) {
+			cmbTipoIdentificacion.addActionListener(cambioCombo);
+		}
+
+		if (cmbGenero != null) {
+			cmbGenero.addActionListener(cambioCombo);
+		}
+
+		if (cmbRol != null) {
+			cmbRol.addActionListener(cambioCombo);
+		}
 	}
 
 	private void intentarCerrar() {
@@ -510,10 +648,10 @@ public class UsuarioFormDialog extends JDialog {
 			String identificacion = txtIdentificacion.getText().trim();
 			String correo = txtCorreo.getText().trim();
 			String telefono = txtTelefono.getText().trim();
-			Genero genero = (Genero) cmbGenero.getSelectedItem();
+			Detalle genero = (Detalle) cmbGenero.getSelectedItem();
 			String username = txtUsername.getText().trim();
-			String password = txtPassword.getText();
-			Rol rol = (Rol) cmbRol.getSelectedItem();
+			String password = new String(txtPassword.getPassword());
+			Detalle rol = (Detalle) cmbRol.getSelectedItem();
 			Date fechaNacimiento = obtenerFechaNacimiento();
 
 			// NUEVO USUARIO
@@ -528,48 +666,87 @@ public class UsuarioFormDialog extends JDialog {
 				nuevoUsuario.setCorreoElectronico(correo);
 				nuevoUsuario.setTelefono(telefono);
 				nuevoUsuario.setFechaNacimiento(fechaNacimiento);
-				nuevoUsuario.setGenero(genero);
+				nuevoUsuario.setDetalleGenero(genero);
 				nuevoUsuario.setUsername(username);
 				nuevoUsuario.setPassword(password);
-				nuevoUsuario.setRol(rol);
+				nuevoUsuario.setDetalleRol(rol);
 				nuevoUsuario.setEstado(true);
 
 				usuarioController.registrar(nuevoUsuario);
 
-				operacionRealizada = true;
+				boolean correoEnviado = EmailUtil.enviarCorreoRegistro(nuevoUsuario.getCorreoElectronico(),
+						nuevoUsuario.getNombre(), nuevoUsuario.getUsername());
 
-				JOptionPane.showMessageDialog(this, "Usuario registrado correctamente.", "Usuarios",
-						JOptionPane.INFORMATION_MESSAGE);
+				if (correoEnviado) {
+
+					JOptionPane.showMessageDialog(this,
+							"Usuario registrado correctamente.\n" + "Se envió un correo de confirmación al usuario.",
+							"Registro exitoso", JOptionPane.INFORMATION_MESSAGE);
+
+				} else {
+
+					JOptionPane.showMessageDialog(this, "Usuario registrado correctamente, pero no fue posible enviar "
+							+ "el correo de confirmación.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+				}
+
+				operacionRealizada = true;
 
 				dispose();
 
 			} else {
 
-				usuarioEditar.setNombre(nombre);
-				usuarioEditar.setApellidos(apellidos);
-				usuarioEditar.setTipoIdentificacion(tipoIdentificacion);
-				usuarioEditar.setIdentificacion(identificacion);
+				// EDITAR USUARIO
+				if (password.equals("••••••••")) {
+					password = "";
+				}
+
 				usuarioEditar.setCorreoElectronico(correo);
 				usuarioEditar.setTelefono(telefono);
 				usuarioEditar.setFechaNacimiento(fechaNacimiento);
-				usuarioEditar.setGenero(genero);
+				usuarioEditar.setDetalleGenero(genero);
 				usuarioEditar.setUsername(username);
 				usuarioEditar.setPassword(password);
-				usuarioEditar.setRol(rol);
+				usuarioEditar.setDetalleRol(rol);
 
-				usuarioController.actualizar(usuarioEditar);
+				boolean correoCambio = usuarioController.actualizar(usuarioEditar);
 
 				operacionRealizada = true;
 
-				JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.", "Usuarios",
-						JOptionPane.INFORMATION_MESSAGE);
+				if (correoCambio) {
+
+					boolean correoEnviado = EmailUtil.enviarNotificacionCambioCorreo(
+							usuarioEditar.getCorreoElectronico(), usuarioEditar.getNombre());
+
+					if (correoEnviado) {
+
+						JOptionPane.showMessageDialog(this,
+								"Usuario actualizado correctamente.\n"
+										+ "Se envió una notificación al nuevo correo electrónico.",
+								"Actualización exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+					} else {
+
+						JOptionPane.showMessageDialog(this,
+								"Usuario actualizado correctamente, pero no fue posible "
+										+ "enviar la notificación al nuevo correo.",
+								"Advertencia", JOptionPane.WARNING_MESSAGE);
+					}
+
+				} else {
+
+					JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.", "Usuarios",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
 
 				dispose();
 			}
 
-		} catch (IllegalArgumentException e) {
+		} catch (
 
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
+		IllegalArgumentException e) {
+
+			JOptionPane.showMessageDialog(this, e.getMessage(), "No se puede guardar el usuario",
+					JOptionPane.WARNING_MESSAGE);
 
 		} catch (Exception e) {
 
@@ -592,16 +769,11 @@ public class UsuarioFormDialog extends JDialog {
 			throw new IllegalArgumentException("Debe ingresar los apellidos.");
 		}
 
-		if (cmbTipoIdentificacion.getSelectedItem() == null) {
+		if (usuarioEditar == null) {
 
-			throw new IllegalArgumentException("Debe seleccionar el tipo de identificación.");
-		}
-
-		String tipoIdentificacionSeleccionado = cmbTipoIdentificacion.getSelectedItem().toString();
-
-		if ("Seleccione".equals(tipoIdentificacionSeleccionado)) {
-
-			throw new IllegalArgumentException("Debe seleccionar el tipo de identificación.");
+			if (cmbTipoIdentificacion.getSelectedIndex() == 0) {
+				throw new IllegalArgumentException("Debe seleccionar el tipo de identificación.");
+			}
 		}
 
 		if (txtIdentificacion.getText() == null || txtIdentificacion.getText().trim().isEmpty()) {
@@ -618,9 +790,8 @@ public class UsuarioFormDialog extends JDialog {
 
 		Date fechaNacimiento = obtenerFechaNacimiento();
 
-		if (fechaNacimiento != null && fechaNacimiento.after(new Date())) {
-
-			throw new IllegalArgumentException("La fecha de nacimiento no puede ser futura.");
+		if (fechaNacimiento == null) {
+			throw new IllegalArgumentException("La fecha de nacimiento es obligatoria.");
 		}
 
 		if (cmbGenero.getSelectedItem() == null) {
@@ -633,9 +804,17 @@ public class UsuarioFormDialog extends JDialog {
 			throw new IllegalArgumentException("Debe ingresar el nombre de usuario.");
 		}
 
-		if (txtPassword.getText() == null || txtPassword.getText().isEmpty()) {
+		String password = new String(txtPassword.getPassword());
 
-			throw new IllegalArgumentException("Debe ingresar la contraseña.");
+		if (usuarioEditar == null) {
+
+			if (password.trim().isEmpty()) {
+				throw new IllegalArgumentException("Debe ingresar la contraseña.");
+			}
+
+			if (password.length() < 8 || password.length() > 16) {
+				throw new IllegalArgumentException("La contraseña debe tener 8 caracteres.");
+			}
 		}
 
 		if (cmbRol.getSelectedItem() == null) {

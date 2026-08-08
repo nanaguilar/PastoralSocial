@@ -401,24 +401,11 @@ public class CasoSocialDetalleDialog extends JDialog {
 
 	private String formatearEstado() {
 
-		String estado = casoSocial.getEstado().toString();
-
-		if ("ENPROCESO".equals(estado)) {
-
-			return "En proceso";
+		if (casoSocial.getDetalleEstado() == null) {
+			return "No especificado";
 		}
 
-		if ("ACTIVO".equals(estado)) {
-
-			return "Activo";
-		}
-
-		if ("CERRADO".equals(estado)) {
-
-			return "Cerrado";
-		}
-
-		return estado;
+		return casoSocial.getDetalleEstado().getDescripcion();
 	}
 
 	private String valor(String texto) {

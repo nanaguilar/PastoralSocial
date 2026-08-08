@@ -16,8 +16,9 @@ public class IngresoFamiliar {
 	@Column(name = "idIngreso")
 	private int idIngreso;
 
-	@Column(name = "integrante", nullable = false)
-	private String integrante;
+	@ManyToOne
+	@JoinColumn(name = "idIntegrante", nullable = false)
+	private IntegranteFamiliar integrante;
 
 	@Column(name = "ocupacion", nullable = false)
 	private String ocupacion;
@@ -35,14 +36,13 @@ public class IngresoFamiliar {
 	public IngresoFamiliar() {
 	}
 
-	public IngresoFamiliar(String integrante, String ocupacion, boolean trabaja, BigDecimal ingresoMensual,
+	public IngresoFamiliar(IntegranteFamiliar integrante, String ocupacion, boolean trabaja, BigDecimal ingresoMensual,
 			CasoSocial casoSocial) {
 
 		this.integrante = integrante;
 		this.ocupacion = ocupacion;
 		this.trabaja = trabaja;
 		this.ingresoMensual = ingresoMensual;
-
 		this.casoSocial = casoSocial;
 	}
 
@@ -54,11 +54,11 @@ public class IngresoFamiliar {
 		this.idIngreso = idIngreso;
 	}
 
-	public String getIntegrante() {
+	public IntegranteFamiliar getIntegrante() {
 		return integrante;
 	}
 
-	public void setIntegrante(String integrante) {
+	public void setIntegrante(IntegranteFamiliar integrante) {
 		this.integrante = integrante;
 	}
 
@@ -96,7 +96,10 @@ public class IngresoFamiliar {
 
 	@Override
 	public String toString() {
-		return integrante;
-	}
+		if (integrante == null) {
+			return "";
+		}
 
+		return integrante.getNombre() + " " + integrante.getApellidos();
+	}
 }

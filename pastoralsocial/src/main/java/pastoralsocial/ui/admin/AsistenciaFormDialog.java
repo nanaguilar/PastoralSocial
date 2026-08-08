@@ -1,4 +1,4 @@
-package pastoralsocial.ui.asistencia;
+package pastoralsocial.ui.admin;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -36,8 +36,6 @@ public class AsistenciaFormDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	// Nombre del catalogo (Maestro) que agrupa los tipos de asistencia.
-	// Debe coincidir exactamente con el que se sembro en Main.java.
 	private static final String NOMBRE_CATALOGO_TIPO_ASISTENCIA = "Tipo de Asistencia";
 
 	private JFormattedTextField txtFecha;
@@ -57,8 +55,13 @@ public class AsistenciaFormDialog extends JDialog {
 	private final CasoSocial casoSocial;
 	private Asistencia asistencia;
 	private boolean modoEdicion;
-
 	private boolean guardado;
+
+	private JFormattedTextField txtProlongacion1;
+	private JFormattedTextField txtProlongacion2;
+	private JFormattedTextField txtProlongacion3;
+	private JFormattedTextField txtProlongacion4;
+	private JFormattedTextField txtProlongacion5;
 
 	// CREAR ASISTENCIA NUEVA
 	public AsistenciaFormDialog(Frame parent, CasoSocial casoSocial) {
@@ -123,14 +126,16 @@ public class AsistenciaFormDialog extends JDialog {
 		JLabel lblFecha = crearEtiqueta("Fecha");
 		lblFecha.setBounds(25, 100, 210, 20);
 		contentPanel.add(lblFecha);
+
 		txtFecha = crearCampoFecha();
 		txtFecha.setBounds(25, 123, 210, 35);
 		contentPanel.add(txtFecha);
 
-		// TIPO DE ASISTENCIA (ComboBox cargado desde Detalle)
+		// TIPO DE ASISTENCIA
 		JLabel lblTipoAsistencia = crearEtiqueta("Tipo de asistencia");
 		lblTipoAsistencia.setBounds(265, 100, 250, 20);
 		contentPanel.add(lblTipoAsistencia);
+
 		cmbTipoAsistencia = new JComboBox<Detalle>();
 		cmbTipoAsistencia.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbTipoAsistencia.setBounds(265, 123, 250, 35);
@@ -142,6 +147,7 @@ public class AsistenciaFormDialog extends JDialog {
 		JLabel lblModalidad = crearEtiqueta("Modalidad");
 		lblModalidad.setBounds(25, 190, 210, 20);
 		contentPanel.add(lblModalidad);
+
 		txtModalidad = crearCampoTexto();
 		txtModalidad.setBounds(25, 213, 210, 35);
 		contentPanel.add(txtModalidad);
@@ -150,6 +156,7 @@ public class AsistenciaFormDialog extends JDialog {
 		JLabel lblFrecuencia = crearEtiqueta("Frecuencia");
 		lblFrecuencia.setBounds(265, 190, 250, 20);
 		contentPanel.add(lblFrecuencia);
+
 		txtFrecuencia = crearCampoTexto();
 		txtFrecuencia.setBounds(265, 213, 250, 35);
 		contentPanel.add(txtFrecuencia);
@@ -158,6 +165,7 @@ public class AsistenciaFormDialog extends JDialog {
 		JLabel lblDuracion = crearEtiqueta("Duración");
 		lblDuracion.setBounds(25, 280, 210, 20);
 		contentPanel.add(lblDuracion);
+
 		txtDuracion = crearCampoTexto();
 		txtDuracion.setBounds(25, 303, 210, 35);
 		contentPanel.add(txtDuracion);
@@ -166,13 +174,66 @@ public class AsistenciaFormDialog extends JDialog {
 		JLabel lblValor = crearEtiqueta("Valor");
 		lblValor.setBounds(265, 280, 250, 20);
 		contentPanel.add(lblValor);
+
 		txtValor = crearCampoTexto();
 		txtValor.setBounds(265, 303, 250, 35);
 		contentPanel.add(txtValor);
 
+		// PROLONGACIONES
+		JLabel lblProlongaciones = new JLabel("Prolongaciones de la ayuda");
+		lblProlongaciones.setForeground(new Color(0, 45, 102));
+		lblProlongaciones.setFont(new Font("SansSerif", Font.BOLD, 15));
+		lblProlongaciones.setBounds(25, 365, 300, 25);
+		contentPanel.add(lblProlongaciones);
+
+		// PROLONGACION 1
+		JLabel lblProlongacion1 = crearEtiqueta("Prolongación 1");
+		lblProlongacion1.setBounds(25, 398, 150, 20);
+		contentPanel.add(lblProlongacion1);
+
+		txtProlongacion1 = crearCampoFecha();
+		txtProlongacion1.setBounds(25, 421, 150, 35);
+		contentPanel.add(txtProlongacion1);
+
+		// PROLONGACION 2
+		JLabel lblProlongacion2 = crearEtiqueta("Prolongación 2");
+		lblProlongacion2.setBounds(195, 398, 150, 20);
+		contentPanel.add(lblProlongacion2);
+
+		txtProlongacion2 = crearCampoFecha();
+		txtProlongacion2.setBounds(195, 421, 150, 35);
+		contentPanel.add(txtProlongacion2);
+
+		// PROLONGACION 3
+		JLabel lblProlongacion3 = crearEtiqueta("Prolongación 3");
+		lblProlongacion3.setBounds(365, 398, 150, 20);
+		contentPanel.add(lblProlongacion3);
+
+		txtProlongacion3 = crearCampoFecha();
+		txtProlongacion3.setBounds(365, 421, 150, 35);
+		contentPanel.add(txtProlongacion3);
+
+		// PROLONGACION 4
+		JLabel lblProlongacion4 = crearEtiqueta("Prolongación 4");
+		lblProlongacion4.setBounds(25, 470, 150, 20);
+		contentPanel.add(lblProlongacion4);
+
+		txtProlongacion4 = crearCampoFecha();
+		txtProlongacion4.setBounds(25, 493, 150, 35);
+		contentPanel.add(txtProlongacion4);
+
+		// PROLONGACION 5
+		JLabel lblProlongacion5 = crearEtiqueta("Prolongación 5");
+		lblProlongacion5.setBounds(195, 470, 150, 20);
+		contentPanel.add(lblProlongacion5);
+
+		txtProlongacion5 = crearCampoFecha();
+		txtProlongacion5.setBounds(195, 493, 150, 35);
+		contentPanel.add(txtProlongacion5);
+
 		// OBSERVACIONES
 		JLabel lblObservaciones = crearEtiqueta("Observaciones");
-		lblObservaciones.setBounds(25, 370, 250, 20);
+		lblObservaciones.setBounds(25, 530, 250, 20);
 		contentPanel.add(lblObservaciones);
 
 		txtObservaciones = new JTextArea();
@@ -181,21 +242,21 @@ public class AsistenciaFormDialog extends JDialog {
 		txtObservaciones.setWrapStyleWord(true);
 
 		JScrollPane scrollObservaciones = new JScrollPane(txtObservaciones);
-		scrollObservaciones.setBounds(25, 393, 490, 90);
+		scrollObservaciones.setBounds(25, 553, 490, 65);
 		contentPanel.add(scrollObservaciones);
 
 		// CANCELAR
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.setForeground(new Color(0, 45, 102));
 		btnCancelar.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnCancelar.setBounds(220, 500, 120, 40);
+		btnCancelar.setBounds(220, 630, 120, 40);
 		contentPanel.add(btnCancelar);
 
 		// GUARDAR
 		btnGuardar = new JButton(modoEdicion ? "Guardar cambios" : "Guardar asistencia");
 		btnGuardar.setForeground(new Color(0, 45, 102));
 		btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnGuardar.setBounds(355, 500, 175, 40);
+		btnGuardar.setBounds(355, 630, 175, 40);
 		contentPanel.add(btnGuardar);
 
 		btnCancelar.addActionListener(new ActionListener() {
@@ -214,16 +275,10 @@ public class AsistenciaFormDialog extends JDialog {
 			}
 		});
 
-		setSize(560, 600);
+		setSize(560, 740);
 		setResizable(false);
 	}
 
-	/**
-	 * Este es el metodo clave del patron Maestro-Detalle: en vez de leer
-	 * de una tabla dedicada (como se hacia antes con TipoAsistenciaController),
-	 * busca el catalogo por nombre y carga unicamente los Detalle que le
-	 * pertenecen.
-	 */
 	private void cargarComboTipoAsistencia() {
 
 		cmbTipoAsistencia.removeAllItems();
@@ -269,6 +324,23 @@ public class AsistenciaFormDialog extends JDialog {
 		txtDuracion.setText(asistencia.getDuracion() != null ? asistencia.getDuracion() : "");
 		txtValor.setText(asistencia.getValor() != null ? asistencia.getValor().toString() : "");
 		txtObservaciones.setText(asistencia.getObservaciones() != null ? asistencia.getObservaciones() : "");
+
+		txtProlongacion1.setText(formatearFechaCampo(asistencia.getFechaProlongacion1()));
+		txtProlongacion2.setText(formatearFechaCampo(asistencia.getFechaProlongacion2()));
+		txtProlongacion3.setText(formatearFechaCampo(asistencia.getFechaProlongacion3()));
+		txtProlongacion4.setText(formatearFechaCampo(asistencia.getFechaProlongacion4()));
+		txtProlongacion5.setText(formatearFechaCampo(asistencia.getFechaProlongacion5()));
+	}
+
+	private String formatearFechaCampo(Date fecha) {
+
+		if (fecha == null) {
+			return "";
+		}
+
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
+		return formato.format(fecha);
 	}
 
 	private JLabel crearEtiqueta(String texto) {
@@ -338,6 +410,12 @@ public class AsistenciaFormDialog extends JDialog {
 			asistenciaGuardar.setValor(obtenerValor());
 			asistenciaGuardar.setObservaciones(txtObservaciones.getText().trim());
 
+			asistenciaGuardar.setFechaProlongacion1(obtenerFechaOpcional(txtProlongacion1));
+			asistenciaGuardar.setFechaProlongacion2(obtenerFechaOpcional(txtProlongacion2));
+			asistenciaGuardar.setFechaProlongacion3(obtenerFechaOpcional(txtProlongacion3));
+			asistenciaGuardar.setFechaProlongacion4(obtenerFechaOpcional(txtProlongacion4));
+			asistenciaGuardar.setFechaProlongacion5(obtenerFechaOpcional(txtProlongacion5));
+
 			if (modoEdicion) {
 
 				asistenciaController.actualizar(asistenciaGuardar);
@@ -350,7 +428,8 @@ public class AsistenciaFormDialog extends JDialog {
 			guardado = true;
 
 			JOptionPane.showMessageDialog(this,
-					modoEdicion ? "La asistencia se actualizó correctamente." : "La asistencia se registró correctamente.",
+					modoEdicion ? "La asistencia se actualizó correctamente."
+							: "La asistencia se registró correctamente.",
 					"Asistencias", JOptionPane.INFORMATION_MESSAGE);
 
 			dispose();
@@ -368,24 +447,90 @@ public class AsistenciaFormDialog extends JDialog {
 		}
 	}
 
+	private Date obtenerFechaOpcional(JFormattedTextField campo) {
+
+		String texto = campo.getText();
+
+		if (texto == null || texto.replace("/", "").replace("_", "").trim().isEmpty()) {
+
+			return null;
+		}
+
+		if (texto.contains("_")) {
+
+			throw new IllegalArgumentException("Complete correctamente las fechas de prolongación.");
+		}
+
+		try {
+
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			formato.setLenient(false);
+
+			return formato.parse(texto);
+
+		} catch (ParseException e) {
+
+			throw new IllegalArgumentException("Las fechas de prolongación deben tener el formato dd/mm/aaaa.");
+		}
+	}
+
 	private void validarFormulario() {
 
-		if (obtenerFecha() == null) {
+		Date fechaAsistencia = obtenerFecha();
 
-			throw new IllegalArgumentException("Debe indicar la fecha de la asistencia.");
+		Date fechaProlongacion1 = obtenerFechaOpcional(txtProlongacion1);
+		Date fechaProlongacion2 = obtenerFechaOpcional(txtProlongacion2);
+		Date fechaProlongacion3 = obtenerFechaOpcional(txtProlongacion3);
+		Date fechaProlongacion4 = obtenerFechaOpcional(txtProlongacion4);
+		Date fechaProlongacion5 = obtenerFechaOpcional(txtProlongacion5);
+
+		if (fechaProlongacion1 != null && !fechaProlongacion1.after(fechaAsistencia)) {
+			throw new IllegalArgumentException("La prolongación 1 debe ser posterior a la fecha de la asistencia.");
 		}
 
-		if (cmbTipoAsistencia.getSelectedItem() == null) {
+		if (fechaProlongacion2 != null) {
 
-			throw new IllegalArgumentException("Debe seleccionar un tipo de asistencia.");
+			if (fechaProlongacion1 == null) {
+				throw new IllegalArgumentException("Debe registrar primero la prolongación 1.");
+			}
+
+			if (!fechaProlongacion2.after(fechaProlongacion1)) {
+				throw new IllegalArgumentException("La prolongación 2 debe ser posterior a la prolongación 1.");
+			}
 		}
 
-		if (txtModalidad.getText() == null || txtModalidad.getText().trim().isEmpty()) {
+		if (fechaProlongacion3 != null) {
 
-			throw new IllegalArgumentException("La modalidad es obligatoria.");
+			if (fechaProlongacion2 == null) {
+				throw new IllegalArgumentException("Debe registrar primero la prolongación 2.");
+			}
+
+			if (!fechaProlongacion3.after(fechaProlongacion2)) {
+				throw new IllegalArgumentException("La prolongación 3 debe ser posterior a la prolongación 2.");
+			}
 		}
 
-		obtenerValor();
+		if (fechaProlongacion4 != null) {
+
+			if (fechaProlongacion3 == null) {
+				throw new IllegalArgumentException("Debe registrar primero la prolongación 3.");
+			}
+
+			if (!fechaProlongacion4.after(fechaProlongacion3)) {
+				throw new IllegalArgumentException("La prolongación 4 debe ser posterior a la prolongación 3.");
+			}
+		}
+
+		if (fechaProlongacion5 != null) {
+
+			if (fechaProlongacion4 == null) {
+				throw new IllegalArgumentException("Debe registrar primero la prolongación 4.");
+			}
+
+			if (!fechaProlongacion5.after(fechaProlongacion4)) {
+				throw new IllegalArgumentException("La prolongación 5 debe ser posterior a la prolongación 4.");
+			}
+		}
 	}
 
 	private Date obtenerFecha() {

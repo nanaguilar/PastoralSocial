@@ -153,7 +153,7 @@ public class GrupoFamiliarPanel extends JPanel {
 
 		modeloTabla.addRow(new Object[] {
 
-				caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getEstado(),
+				caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
 				caso.getParroquia(), responsable });
 	}
 
@@ -218,7 +218,6 @@ public class GrupoFamiliarPanel extends JPanel {
 		CasoSocial caso = obtenerCasoSeleccionado();
 
 		if (caso == null) {
-
 			return;
 		}
 
@@ -226,8 +225,12 @@ public class GrupoFamiliarPanel extends JPanel {
 
 		JDialog dialog = new JDialog(parent, "Grupo familiar - " + caso.getNumeroFicha(), true);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setContentPane(new IntegrantesFamiliaresPanel(caso));
-		dialog.setSize(970, 620);
+
+		IntegrantesFamiliaresPanel panelGrupoFamiliar = new IntegrantesFamiliaresPanel(caso);
+
+		dialog.setContentPane(panelGrupoFamiliar);
+
+		dialog.setSize(970, 850);
 		dialog.setLocationRelativeTo(parent);
 		dialog.setResizable(false);
 		dialog.setVisible(true);

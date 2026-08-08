@@ -29,7 +29,6 @@ import pastoralsocial.controller.MaestroController;
 import pastoralsocial.dao.UsuarioDAO;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Detalle;
-import pastoralsocial.modelo.EstadoCaso;
 import pastoralsocial.modelo.Maestro;
 import pastoralsocial.modelo.Usuario;
 
@@ -48,12 +47,15 @@ public class CasoSocialFormDialog extends JDialog {
 	private JTextField txtDistrito;
 	private JTextArea txtDireccion;
 	private JTextArea txtObservaciones;
-	private JComboBox<EstadoCaso> cmbEstado;
+
 	private JComboBox<Usuario> cmbResponsable;
 	private JComboBox<Detalle> cmbTipoVivienda;
 	private JComboBox<Detalle> cmbTenencia;
 	private JComboBox<Detalle> cmbCondicion;
+	private JComboBox<Detalle> cmbEstado;
 
+	private static final String CATALOGO_ESTADO_CASO = "EstadoCaso";
+	
 	// Nombres de los catalogos (Maestro) para cada combo de vivienda.
 	private static final String CATALOGO_TIPO_VIVIENDA = "Tipo de Vivienda";
 	private static final String CATALOGO_TENENCIA_VIVIENDA = "Tenencia de Vivienda";
@@ -230,7 +232,7 @@ public class CasoSocialFormDialog extends JDialog {
 		lblEstado.setBounds(35, 195, 200, 20);
 		getContentPane().add(lblEstado);
 
-		cmbEstado = new JComboBox<EstadoCaso>();
+		cmbEstado = new JComboBox<Detalle>();
 		cmbEstado.setForeground(new Color(0, 45, 102));
 		cmbEstado.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbEstado.setBounds(35, 218, 220, 32);
@@ -502,11 +504,9 @@ public class CasoSocialFormDialog extends JDialog {
 			// ESTADOS
 			cmbEstado.removeAllItems();
 
-			EstadoCaso[] estados = EstadoCaso.values();
+			for (Detalle detalle : obtenerDetallesDelCatalogo(CATALOGO_ESTADO_CASO)) {
 
-			for (int i = 0; i < estados.length; i++) {
-
-				cmbEstado.addItem(estados[i]);
+				cmbEstado.addItem(detalle);
 			}
 
 			// USUARIOS ACTIVOS
@@ -555,11 +555,24 @@ public class CasoSocialFormDialog extends JDialog {
 		}
 	}
 
-	/**
-	 * Busca el catalogo (Maestro) por su nombre y devuelve unicamente los Detalle
-	 * que le pertenecen. Es el mismo patron usado para el combo de Tipo de
-	 * asistencia.
-	 */
+	private void seleccionarEstado(Detalle estadoActual) {
+
+		if (estadoActual == null) {
+			return;
+		}
+
+		for (int i = 0; i < cmbEstado.getItemCount(); i++) {
+
+			Detalle item = cmbEstado.getItemAt(i);
+
+			if (item.getIdDetalle() == estadoActual.getIdDetalle()) {
+
+				cmbEstado.setSelectedIndex(i);
+				return;
+			}
+		}
+	}
+
 	private List<Detalle> obtenerDetallesDelCatalogo(String nombreCatalogo) {
 
 		Maestro catalogo = maestroController.buscarPorNombre(nombreCatalogo);
@@ -575,7 +588,16 @@ public class CasoSocialFormDialog extends JDialog {
 
 		txtFechaInicio.setText(formatoFecha.format(new Date()));
 
-		cmbEstado.setSelectedItem(EstadoCaso.ACTIVO);
+		for (int i = 0; i < cmbEstado.getItemCount(); i++) {
+
+			Detalle detalle = cmbEstado.getItemAt(i);
+
+			if ("Activo".equalsIgnoreCase(detalle.getDescripcion())) {
+
+				cmbEstado.setSelectedIndex(i);
+				break;
+			}
+		}
 
 		cmbEstado.setEnabled(false);
 
@@ -603,7 +625,7 @@ public class CasoSocialFormDialog extends JDialog {
 			txtFechaPrevistaFin.setText(formatoFecha.format(casoSocial.getFechaPrevistaFin()));
 		}
 
-		cmbEstado.setSelectedItem(casoSocial.getEstado());
+		seleccionarEstado(casoSocial.getDetalleEstado());
 		txtParroquia.setText(valorSeguro(casoSocial.getParroquia()));
 		txtSectorFilial.setText(valorSeguro(casoSocial.getSectorFilial()));
 		txtProvincia.setText(valorSeguro(casoSocial.getProvincia()));
@@ -634,7 +656,7 @@ public class CasoSocialFormDialog extends JDialog {
 						"La fecha prevista de fin no puede ser anterior a la fecha de inicio.");
 			}
 
-			EstadoCaso estado = (EstadoCaso) cmbEstado.getSelectedItem();
+			Detalle estado = (Detalle) cmbEstado.getSelectedItem();
 			Usuario responsable = (Usuario) cmbResponsable.getSelectedItem();
 
 			validarResponsable(responsable);
@@ -650,7 +672,7 @@ public class CasoSocialFormDialog extends JDialog {
 
 				casoSocial.setFechaInicio(new Date());
 				casoSocial.setFechaPrevistaFin(fechaPrevistaFin);
-				casoSocial.setEstado(estado);
+				casoSocial.setDetalleEstado(estado);
 				casoSocial.setParroquia(txtParroquia.getText().trim());
 				casoSocial.setSectorFilial(txtSectorFilial.getText().trim());
 				casoSocial.setProvincia(txtProvincia.getText().trim());
@@ -676,7 +698,7 @@ public class CasoSocialFormDialog extends JDialog {
 
 				// EDITAR CASO EXISTENTE
 				casoSocial.setFechaPrevistaFin(fechaPrevistaFin);
-				casoSocial.setEstado(estado);
+				casoSocial.setDetalleEstado(estado);
 				casoSocial.setParroquia(txtParroquia.getText().trim());
 				casoSocial.setSectorFilial(txtSectorFilial.getText().trim());
 				casoSocial.setProvincia(txtProvincia.getText().trim());

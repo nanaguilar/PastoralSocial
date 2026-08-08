@@ -1,4 +1,4 @@
-package pastoralsocial.ui.asistencia;
+package pastoralsocial.ui.admin;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -19,7 +19,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
+import pastoralsocial.controller.CasoSocialController;
 import pastoralsocial.controller.AsistenciaController;
+import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Asistencia;
 import pastoralsocial.modelo.Usuario;
 
@@ -168,13 +170,45 @@ public class AsistenciasPanel extends JPanel {
 
 				Frame parent = (Frame) SwingUtilities.getWindowAncestor(AsistenciasPanel.this);
 
-				AsistenciaFormDialog dialog = new AsistenciaFormDialog(parent);
+				CasoSocialController casoSocialController = new CasoSocialController();
 
-				dialog.setVisible(true);
+				try {
 
-				if (dialog.isGuardado()) {
+					List<CasoSocial> casos = casoSocialController.listar();
 
-					cargarAsistencias();
+					if (casos == null || casos.isEmpty()) {
+
+						JOptionPane.showMessageDialog(AsistenciasPanel.this,
+								"No existen casos sociales registrados para asociar la asistencia.", "Nueva asistencia",
+								JOptionPane.WARNING_MESSAGE);
+
+						return;
+					}
+
+					CasoSocial[] opciones = casos.toArray(new CasoSocial[casos.size()]);
+
+					CasoSocial casoSeleccionado = (CasoSocial) JOptionPane.showInputDialog(AsistenciasPanel.this,
+							"Seleccione el caso social al que pertenece la asistencia:", "Nueva asistencia",
+							JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+
+					if (casoSeleccionado == null) {
+						return;
+					}
+
+					AsistenciaFormDialog dialog = new AsistenciaFormDialog(parent, casoSeleccionado);
+
+					dialog.setVisible(true);
+
+					if (dialog.isGuardado()) {
+						cargarAsistencias();
+					}
+
+				} catch (Exception ex) {
+
+					ex.printStackTrace();
+
+					JOptionPane.showMessageDialog(AsistenciasPanel.this, "No fue posible seleccionar el caso social.",
+							"Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -234,7 +268,9 @@ public class AsistenciasPanel extends JPanel {
 
 			String caso = asistencia.getCasoSocial() != null ? asistencia.getCasoSocial().toString() : "";
 
-			String tipo = asistencia.getTipoAsistencia() != null ? asistencia.getTipoAsistencia().getNombre() : "";
+			String tipo = asistencia.getDetalleTipoAsistencia() != null
+					? asistencia.getDetalleTipoAsistencia().toString()
+					: "";
 
 			String valor = asistencia.getValor() != null ? asistencia.getValor().toPlainString() : "";
 
@@ -264,7 +300,8 @@ public class AsistenciasPanel extends JPanel {
 
 				String caso = asistencia.getCasoSocial() != null ? asistencia.getCasoSocial().toString() : "";
 
-				String tipo = asistencia.getTipoAsistencia() != null ? asistencia.getTipoAsistencia().getNombre()
+				String tipo = asistencia.getDetalleTipoAsistencia() != null
+						? asistencia.getDetalleTipoAsistencia().toString()
 						: "";
 
 				String modalidad = asistencia.getModalidad() != null ? asistencia.getModalidad() : "";
@@ -353,8 +390,8 @@ public class AsistenciasPanel extends JPanel {
 
 		if (filaSeleccionada == -1) {
 
-			JOptionPane.showMessageDialog(this, "Debe seleccionar una asistencia para eliminar.",
-					"Eliminar asistencia", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Debe seleccionar una asistencia para eliminar.", "Eliminar asistencia",
+					JOptionPane.WARNING_MESSAGE);
 
 			return;
 		}

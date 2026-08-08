@@ -243,9 +243,9 @@ public class UsuariosPanel extends JPanel {
 
 			String rol = "Sin rol";
 
-			if (usuario.getRol() != null) {
+			if (usuario.getDetalleRol() != null) {
 
-				rol = usuario.getRol().getNombre();
+				rol = usuario.getDetalleRol().getDescripcion();
 			}
 
 			String estado;
@@ -308,9 +308,9 @@ public class UsuariosPanel extends JPanel {
 					username = usuario.getUsername().toLowerCase();
 				}
 
-				if (usuario.getRol() != null && usuario.getRol().getNombre() != null) {
+				if (usuario.getDetalleRol() != null && usuario.getDetalleRol().getDescripcion() != null) {
 
-					rol = usuario.getRol().getNombre().toLowerCase();
+					rol = usuario.getDetalleRol().getDescripcion().toLowerCase();
 				}
 
 				if (texto.isEmpty() || nombre.contains(texto) || apellidos.contains(texto)
@@ -321,7 +321,7 @@ public class UsuariosPanel extends JPanel {
 					String nombreCompleto = ((usuario.getNombre() != null ? usuario.getNombre() : "") + " "
 							+ (usuario.getApellidos() != null ? usuario.getApellidos() : "")).trim();
 
-					String nombreRol = usuario.getRol() != null ? usuario.getRol().getNombre() : "Sin rol";
+					String nombreRol = usuario.getDetalleRol() != null ? usuario.getDetalleRol().getDescripcion() : "Sin rol";
 
 					String estado;
 

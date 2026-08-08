@@ -166,7 +166,7 @@ public class CasosSocialesPanel extends JPanel {
 
 				modeloTabla.addRow(new Object[] {
 
-						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getEstado(),
+						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
 						caso.getParroquia(), responsable });
 			}
 
@@ -209,7 +209,7 @@ public class CasosSocialesPanel extends JPanel {
 
 				modeloTabla.addRow(new Object[] {
 
-						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getEstado(),
+						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
 						caso.getParroquia(), responsable });
 			}
 

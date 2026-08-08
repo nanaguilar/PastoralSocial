@@ -1,6 +1,7 @@
 package pastoralsocial.util;
 
 import java.security.MessageDigest;
+import pastoralsocial.util.PasswordUtil;
 
 public class PasswordUtil {
 

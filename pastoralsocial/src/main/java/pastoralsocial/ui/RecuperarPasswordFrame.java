@@ -14,6 +14,8 @@ import java.util.Random;
 
 public class RecuperarPasswordFrame extends JFrame {
 
+	private static final long serialVersionUID = 1L;
+	
 	private JTextField txtCorreo = new JTextField(15);
 	private JTextField txtCodigo = new JTextField(15);
 	private JPasswordField txtNuevaClave = new JPasswordField(15);

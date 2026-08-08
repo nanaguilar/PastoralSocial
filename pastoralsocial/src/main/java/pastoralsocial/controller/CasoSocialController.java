@@ -102,7 +102,7 @@ public class CasoSocialController {
 			throw new IllegalArgumentException("La fecha de inicio es obligatoria.");
 		}
 
-		if (casoSocial.getEstado() == null) {
+		if (casoSocial.getDetalleEstado() == null) {
 			throw new IllegalArgumentException("Debe seleccionar el estado del caso.");
 		}
 

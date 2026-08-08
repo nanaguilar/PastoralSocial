@@ -13,8 +13,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.ui.admin.AsistenciasPanel;
 import pastoralsocial.ui.admin.CasosSocialesPanel;
-import pastoralsocial.ui.asistencia.AsistenciasPanel;
 
 public class MenuPrincipalCoordinadorFrame extends JFrame {
 
@@ -36,7 +36,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 
 	private void inicializarInterfaz() {
 
-		setTitle("SIGCAS - Sistema de Gestión de Asistencia Social");
+		setTitle("SIGCAS - Sistema Integral de Gestión de Casos Sociales");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1200, 700);
 		setLocationRelativeTo(null);

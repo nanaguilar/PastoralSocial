@@ -148,10 +148,8 @@ public class GrupoFamiliarTrabajadorPanel extends JPanel {
 
 	private void agregarCasoTabla(CasoSocial caso) {
 
-		modeloTabla.addRow(new Object[] {
-
-				caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getEstado(),
-				caso.getParroquia() });
+		modeloTabla.addRow(new Object[] { caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(),
+				caso.getDetalleEstado(), caso.getParroquia() });
 	}
 
 	private void buscarCasos() {
@@ -186,7 +184,14 @@ public class GrupoFamiliarTrabajadorPanel extends JPanel {
 					coincide = true;
 				}
 
-				if (caso.getEstado() != null && caso.getEstado().toString().toLowerCase().contains(busqueda)) {
+				if (caso.getDetalleEstado() != null
+						&& caso.getDetalleEstado().getDescripcion().toLowerCase().contains(busqueda)) {
+
+					coincide = true;
+				}
+
+				if (caso.getDetalleEstado() != null
+						&& caso.getDetalleEstado().getDescripcion().toLowerCase().contains(busqueda)) {
 
 					coincide = true;
 				}

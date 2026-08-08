@@ -29,9 +29,9 @@ public class CasoSocial {
 	@Column(name = "fechaPrevistaFin")
 	private Date fechaPrevistaFin;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "estado", nullable = false)
-	private EstadoCaso estado;
+	@ManyToOne
+	@JoinColumn(name = "idDetalleEstado", nullable = false)
+	private Detalle detalleEstado;
 
 	@Column(name = "parroquia")
 	private String parroquia;
@@ -85,7 +85,7 @@ public class CasoSocial {
 	public CasoSocial() {
 	}
 
-	public CasoSocial(String numeroFicha, Date fechaInicio, Date fechaPrevistaFin, EstadoCaso estado, String parroquia,
+	public CasoSocial(String numeroFicha, Date fechaInicio, Date fechaPrevistaFin, Detalle detalleEstado, String parroquia,
 			String sectorFilial, String provincia, String canton, String distrito, String direccion,
 			String observaciones, Usuario usuario, Detalle detalleTipoVivienda, Detalle detalleTenenciaVivienda,
 			Detalle detalleCondicionVivienda) {
@@ -93,7 +93,7 @@ public class CasoSocial {
 		this.numeroFicha = numeroFicha;
 		this.fechaInicio = fechaInicio;
 		this.fechaPrevistaFin = fechaPrevistaFin;
-		this.estado = estado;
+		this.detalleEstado = detalleEstado;
 		this.parroquia = parroquia;
 		this.sectorFilial = sectorFilial;
 		this.provincia = provincia;
@@ -155,12 +155,12 @@ public class CasoSocial {
 		this.fechaPrevistaFin = fechaPrevistaFin;
 	}
 
-	public EstadoCaso getEstado() {
-		return estado;
+	public Detalle getDetalleEstado() {
+		return detalleEstado;
 	}
 
-	public void setEstado(EstadoCaso estado) {
-		this.estado = estado;
+	public void setDetalleEstado(Detalle detalleEstado) {
+		this.detalleEstado = detalleEstado;
 	}
 
 	public String getParroquia() {

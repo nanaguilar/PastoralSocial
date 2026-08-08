@@ -1,7 +1,5 @@
 package pastoralsocial.modelo;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.*;
 
 /**
@@ -20,8 +18,8 @@ public class Rol {
 	@Column(name = "nombre", nullable = false, unique = true)
 	private String nombre;
 
-	@OneToMany(mappedBy = "rol")
-	private List<Usuario> usuarios = new ArrayList<>();
+//	@OneToMany(mappedBy = "rol")
+//	private List<Usuario> usuarios = new ArrayList<>();
 
 	public Rol() {
 	}
@@ -46,13 +44,13 @@ public class Rol {
 		this.nombre = nombre;
 	}
 
-	public List<Usuario> getUsuarios() {
-		return usuarios;
-	}
-
-	public void setUsuarios(List<Usuario> usuarios) {
-		this.usuarios = usuarios;
-	}
+//	public List<Usuario> getUsuarios() {
+//		return usuarios;
+//	}
+//
+//	public void setUsuarios(List<Usuario> usuarios) {
+//		this.usuarios = usuarios;
+//	}
 
 	@Override
 	public String toString() {

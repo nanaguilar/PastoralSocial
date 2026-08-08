@@ -23,12 +23,12 @@ public class Sesion {
 	}
 
 	public static boolean puedeEditar() {
-		return tieneRol("ADMINISTRADOR") || tieneRol("TRABAJADOR_SOCIAL");
+		return tieneRol("ADMINISTRADOR") || tieneRol("TRABAJADORSOCIAL");
 	}
 
 	private static boolean tieneRol(String nombre) {
-		return usuarioActivo != null && usuarioActivo.getRol() != null
-				&& nombre.equalsIgnoreCase(usuarioActivo.getRol().getNombre());
+		return usuarioActivo != null && usuarioActivo.getDetalleRol() != null
+				&& nombre.equalsIgnoreCase(usuarioActivo.getDetalleRol().getDescripcion());
 	}
 
 	public static String nombreUsuario() {
