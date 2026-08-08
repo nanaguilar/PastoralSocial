@@ -58,17 +58,20 @@ public class CasoSocial {
 	@JoinColumn(name = "idUsuario", nullable = false)
 	private Usuario usuario;
 
+	// Antes: @ManyToOne TipoVivienda tipoVivienda;
 	@ManyToOne
-	@JoinColumn(name = "idTipoVivienda", nullable = false)
-	private TipoVivienda tipoVivienda;
+	@JoinColumn(name = "idDetalleTipoVivienda", nullable = false)
+	private Detalle detalleTipoVivienda;
 
+	// Antes: @ManyToOne TenenciaVivienda tenenciaVivienda;
 	@ManyToOne
-	@JoinColumn(name = "idTenencia", nullable = false)
-	private TenenciaVivienda tenenciaVivienda;
+	@JoinColumn(name = "idDetalleTenencia", nullable = false)
+	private Detalle detalleTenenciaVivienda;
 
+	// Antes: @ManyToOne CondicionVivienda condicionVivienda;
 	@ManyToOne
-	@JoinColumn(name = "idCondicion", nullable = false)
-	private CondicionVivienda condicionVivienda;
+	@JoinColumn(name = "idDetalleCondicion", nullable = false)
+	private Detalle detalleCondicionVivienda;
 
 	@OneToMany(mappedBy = "casoSocial")
 	private List<IntegranteFamiliar> integrantesFamiliares = new ArrayList<>();
@@ -84,8 +87,8 @@ public class CasoSocial {
 
 	public CasoSocial(String numeroFicha, Date fechaInicio, Date fechaPrevistaFin, EstadoCaso estado, String parroquia,
 			String sectorFilial, String provincia, String canton, String distrito, String direccion,
-			String observaciones, Usuario usuario, TipoVivienda tipoVivienda, TenenciaVivienda tenenciaVivienda,
-			CondicionVivienda condicionVivienda) {
+			String observaciones, Usuario usuario, Detalle detalleTipoVivienda, Detalle detalleTenenciaVivienda,
+			Detalle detalleCondicionVivienda) {
 
 		this.numeroFicha = numeroFicha;
 		this.fechaInicio = fechaInicio;
@@ -100,9 +103,9 @@ public class CasoSocial {
 		this.observaciones = observaciones;
 
 		this.usuario = usuario;
-		this.tipoVivienda = tipoVivienda;
-		this.tenenciaVivienda = tenenciaVivienda;
-		this.condicionVivienda = condicionVivienda;
+		this.detalleTipoVivienda = detalleTipoVivienda;
+		this.detalleTenenciaVivienda = detalleTenenciaVivienda;
+		this.detalleCondicionVivienda = detalleCondicionVivienda;
 	}
 
 	public void agregarIntegrante(IntegranteFamiliar integrante) {
@@ -224,28 +227,28 @@ public class CasoSocial {
 		this.usuario = usuario;
 	}
 
-	public TipoVivienda getTipoVivienda() {
-		return tipoVivienda;
+	public Detalle getDetalleTipoVivienda() {
+		return detalleTipoVivienda;
 	}
 
-	public void setTipoVivienda(TipoVivienda tipoVivienda) {
-		this.tipoVivienda = tipoVivienda;
+	public void setDetalleTipoVivienda(Detalle detalleTipoVivienda) {
+		this.detalleTipoVivienda = detalleTipoVivienda;
 	}
 
-	public TenenciaVivienda getTenenciaVivienda() {
-		return tenenciaVivienda;
+	public Detalle getDetalleTenenciaVivienda() {
+		return detalleTenenciaVivienda;
 	}
 
-	public void setTenenciaVivienda(TenenciaVivienda tenenciaVivienda) {
-		this.tenenciaVivienda = tenenciaVivienda;
+	public void setDetalleTenenciaVivienda(Detalle detalleTenenciaVivienda) {
+		this.detalleTenenciaVivienda = detalleTenenciaVivienda;
 	}
 
-	public CondicionVivienda getCondicionVivienda() {
-		return condicionVivienda;
+	public Detalle getDetalleCondicionVivienda() {
+		return detalleCondicionVivienda;
 	}
 
-	public void setCondicionVivienda(CondicionVivienda condicionVivienda) {
-		this.condicionVivienda = condicionVivienda;
+	public void setDetalleCondicionVivienda(Detalle detalleCondicionVivienda) {
+		this.detalleCondicionVivienda = detalleCondicionVivienda;
 	}
 
 	public List<IntegranteFamiliar> getIntegrantesFamiliares() {

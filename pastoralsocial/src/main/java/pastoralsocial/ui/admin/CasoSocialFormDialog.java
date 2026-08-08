@@ -24,15 +24,13 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import pastoralsocial.controller.CasoSocialController;
-import pastoralsocial.dao.CondicionViviendaDAO;
-import pastoralsocial.dao.TenenciaViviendaDAO;
-import pastoralsocial.dao.TipoViviendaDAO;
+import pastoralsocial.controller.DetalleController;
+import pastoralsocial.controller.MaestroController;
 import pastoralsocial.dao.UsuarioDAO;
 import pastoralsocial.modelo.CasoSocial;
-import pastoralsocial.modelo.CondicionVivienda;
+import pastoralsocial.modelo.Detalle;
 import pastoralsocial.modelo.EstadoCaso;
-import pastoralsocial.modelo.TenenciaVivienda;
-import pastoralsocial.modelo.TipoVivienda;
+import pastoralsocial.modelo.Maestro;
 import pastoralsocial.modelo.Usuario;
 
 public class CasoSocialFormDialog extends JDialog {
@@ -52,9 +50,14 @@ public class CasoSocialFormDialog extends JDialog {
 	private JTextArea txtObservaciones;
 	private JComboBox<EstadoCaso> cmbEstado;
 	private JComboBox<Usuario> cmbResponsable;
-	private JComboBox<TipoVivienda> cmbTipoVivienda;
-	private JComboBox<TenenciaVivienda> cmbTenencia;
-	private JComboBox<CondicionVivienda> cmbCondicion;
+	private JComboBox<Detalle> cmbTipoVivienda;
+	private JComboBox<Detalle> cmbTenencia;
+	private JComboBox<Detalle> cmbCondicion;
+
+	// Nombres de los catalogos (Maestro) para cada combo de vivienda.
+	private static final String CATALOGO_TIPO_VIVIENDA = "Tipo de Vivienda";
+	private static final String CATALOGO_TENENCIA_VIVIENDA = "Tenencia de Vivienda";
+	private static final String CATALOGO_CONDICION_VIVIENDA = "Condición de Vivienda";
 
 	private JButton btnGuardar;
 	private JButton btnCancelar;
@@ -62,9 +65,8 @@ public class CasoSocialFormDialog extends JDialog {
 	private final CasoSocialController casoSocialController;
 
 	private final UsuarioDAO usuarioDAO;
-	private final TipoViviendaDAO tipoViviendaDAO;
-	private final TenenciaViviendaDAO tenenciaViviendaDAO;
-	private final CondicionViviendaDAO condicionViviendaDAO;
+	private final DetalleController detalleController;
+	private final MaestroController maestroController;
 
 	private CasoSocial casoSocial;
 	private boolean guardado;
@@ -83,9 +85,8 @@ public class CasoSocialFormDialog extends JDialog {
 		this.casoSocialController = new CasoSocialController();
 
 		this.usuarioDAO = new UsuarioDAO();
-		this.tipoViviendaDAO = new TipoViviendaDAO();
-		this.tenenciaViviendaDAO = new TenenciaViviendaDAO();
-		this.condicionViviendaDAO = new CondicionViviendaDAO();
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
 
 		inicializarInterfaz();
 		cargarCombos();
@@ -106,9 +107,8 @@ public class CasoSocialFormDialog extends JDialog {
 		this.casoSocialController = new CasoSocialController();
 
 		this.usuarioDAO = new UsuarioDAO();
-		this.tipoViviendaDAO = new TipoViviendaDAO();
-		this.tenenciaViviendaDAO = new TenenciaViviendaDAO();
-		this.condicionViviendaDAO = new CondicionViviendaDAO();
+		this.detalleController = new DetalleController();
+		this.maestroController = new MaestroController();
 
 		inicializarInterfaz();
 		cargarCombos();
@@ -352,7 +352,7 @@ public class CasoSocialFormDialog extends JDialog {
 		lblTipoVivienda.setBounds(35, 500, 200, 20);
 		getContentPane().add(lblTipoVivienda);
 
-		cmbTipoVivienda = new JComboBox<TipoVivienda>();
+		cmbTipoVivienda = new JComboBox<Detalle>();
 		cmbTipoVivienda.setForeground(new Color(0, 45, 102));
 		cmbTipoVivienda.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbTipoVivienda.setBounds(35, 523, 220, 32);
@@ -365,7 +365,7 @@ public class CasoSocialFormDialog extends JDialog {
 		lblTenencia.setBounds(280, 500, 200, 20);
 		getContentPane().add(lblTenencia);
 
-		cmbTenencia = new JComboBox<TenenciaVivienda>();
+		cmbTenencia = new JComboBox<Detalle>();
 		cmbTenencia.setForeground(new Color(0, 45, 102));
 		cmbTenencia.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbTenencia.setBounds(280, 523, 220, 32);
@@ -378,7 +378,7 @@ public class CasoSocialFormDialog extends JDialog {
 		lblCondicion.setBounds(525, 500, 200, 20);
 		getContentPane().add(lblCondicion);
 
-		cmbCondicion = new JComboBox<CondicionVivienda>();
+		cmbCondicion = new JComboBox<Detalle>();
 		cmbCondicion.setForeground(new Color(0, 45, 102));
 		cmbCondicion.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		cmbCondicion.setBounds(525, 523, 220, 32);
@@ -522,34 +522,28 @@ public class CasoSocialFormDialog extends JDialog {
 				}
 			}
 
-			// TIPOS DE VIVIENDA
+			// TIPOS DE VIVIENDA (cargados desde Detalle, filtrando por su Maestro)
 			cmbTipoVivienda.removeAllItems();
 
-			List<TipoVivienda> tipos = tipoViviendaDAO.getAll();
+			for (Detalle detalle : obtenerDetallesDelCatalogo(CATALOGO_TIPO_VIVIENDA)) {
 
-			for (TipoVivienda tipo : tipos) {
-
-				cmbTipoVivienda.addItem(tipo);
+				cmbTipoVivienda.addItem(detalle);
 			}
 
 			// TENENCIAS
 			cmbTenencia.removeAllItems();
 
-			List<TenenciaVivienda> tenencias = tenenciaViviendaDAO.getAll();
+			for (Detalle detalle : obtenerDetallesDelCatalogo(CATALOGO_TENENCIA_VIVIENDA)) {
 
-			for (TenenciaVivienda tenencia : tenencias) {
-
-				cmbTenencia.addItem(tenencia);
+				cmbTenencia.addItem(detalle);
 			}
 
 			// CONDICIONES
 			cmbCondicion.removeAllItems();
 
-			List<CondicionVivienda> condiciones = condicionViviendaDAO.getAll();
+			for (Detalle detalle : obtenerDetallesDelCatalogo(CATALOGO_CONDICION_VIVIENDA)) {
 
-			for (CondicionVivienda condicion : condiciones) {
-
-				cmbCondicion.addItem(condicion);
+				cmbCondicion.addItem(detalle);
 			}
 
 		} catch (Exception e) {
@@ -559,6 +553,22 @@ public class CasoSocialFormDialog extends JDialog {
 			JOptionPane.showMessageDialog(this, "No fue posible cargar los datos del formulario.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	/**
+	 * Busca el catalogo (Maestro) por su nombre y devuelve unicamente los Detalle
+	 * que le pertenecen. Es el mismo patron usado para el combo de Tipo de
+	 * asistencia.
+	 */
+	private List<Detalle> obtenerDetallesDelCatalogo(String nombreCatalogo) {
+
+		Maestro catalogo = maestroController.buscarPorNombre(nombreCatalogo);
+
+		if (catalogo == null) {
+			return new java.util.ArrayList<Detalle>();
+		}
+
+		return detalleController.listarPorMaestro(catalogo.getIdMaestro());
 	}
 
 	private void prepararNuevoCaso() {
@@ -602,9 +612,9 @@ public class CasoSocialFormDialog extends JDialog {
 		txtDireccion.setText(valorSeguro(casoSocial.getDireccion()));
 		txtObservaciones.setText(valorSeguro(casoSocial.getObservaciones()));
 		seleccionarUsuario(casoSocial.getUsuario());
-		seleccionarTipoVivienda(casoSocial.getTipoVivienda());
-		seleccionarTenencia(casoSocial.getTenenciaVivienda());
-		seleccionarCondicion(casoSocial.getCondicionVivienda());
+		seleccionarTipoVivienda(casoSocial.getDetalleTipoVivienda());
+		seleccionarTenencia(casoSocial.getDetalleTenenciaVivienda());
+		seleccionarCondicion(casoSocial.getDetalleCondicionVivienda());
 	}
 
 	private void guardar() {
@@ -629,9 +639,9 @@ public class CasoSocialFormDialog extends JDialog {
 
 			validarResponsable(responsable);
 
-			TipoVivienda tipoVivienda = (TipoVivienda) cmbTipoVivienda.getSelectedItem();
-			TenenciaVivienda tenencia = (TenenciaVivienda) cmbTenencia.getSelectedItem();
-			CondicionVivienda condicion = (CondicionVivienda) cmbCondicion.getSelectedItem();
+			Detalle tipoVivienda = (Detalle) cmbTipoVivienda.getSelectedItem();
+			Detalle tenencia = (Detalle) cmbTenencia.getSelectedItem();
+			Detalle condicion = (Detalle) cmbCondicion.getSelectedItem();
 
 			// NUEVO CASO
 			if (casoSocial == null) {
@@ -649,9 +659,9 @@ public class CasoSocialFormDialog extends JDialog {
 				casoSocial.setDireccion(txtDireccion.getText().trim());
 				casoSocial.setObservaciones(txtObservaciones.getText().trim());
 				casoSocial.setUsuario(responsable);
-				casoSocial.setTipoVivienda(tipoVivienda);
-				casoSocial.setTenenciaVivienda(tenencia);
-				casoSocial.setCondicionVivienda(condicion);
+				casoSocial.setDetalleTipoVivienda(tipoVivienda);
+				casoSocial.setDetalleTenenciaVivienda(tenencia);
+				casoSocial.setDetalleCondicionVivienda(condicion);
 
 				casoSocialController.registrar(casoSocial);
 
@@ -675,9 +685,9 @@ public class CasoSocialFormDialog extends JDialog {
 				casoSocial.setDireccion(txtDireccion.getText().trim());
 				casoSocial.setObservaciones(txtObservaciones.getText().trim());
 				casoSocial.setUsuario(responsable);
-				casoSocial.setTipoVivienda(tipoVivienda);
-				casoSocial.setTenenciaVivienda(tenencia);
-				casoSocial.setCondicionVivienda(condicion);
+				casoSocial.setDetalleTipoVivienda(tipoVivienda);
+				casoSocial.setDetalleTenenciaVivienda(tenencia);
+				casoSocial.setDetalleCondicionVivienda(condicion);
 
 				casoSocialController.actualizar(casoSocial);
 
@@ -839,7 +849,7 @@ public class CasoSocialFormDialog extends JDialog {
 		cmbResponsable.setSelectedItem(usuario);
 	}
 
-	private void seleccionarTipoVivienda(TipoVivienda tipoActual) {
+	private void seleccionarTipoVivienda(Detalle tipoActual) {
 
 		if (tipoActual == null) {
 			return;
@@ -847,9 +857,9 @@ public class CasoSocialFormDialog extends JDialog {
 
 		for (int i = 0; i < cmbTipoVivienda.getItemCount(); i++) {
 
-			TipoVivienda item = cmbTipoVivienda.getItemAt(i);
+			Detalle item = cmbTipoVivienda.getItemAt(i);
 
-			if (item.getIdTipoVivienda() == tipoActual.getIdTipoVivienda()) {
+			if (item.getIdDetalle() == tipoActual.getIdDetalle()) {
 
 				cmbTipoVivienda.setSelectedIndex(i);
 
@@ -858,7 +868,7 @@ public class CasoSocialFormDialog extends JDialog {
 		}
 	}
 
-	private void seleccionarTenencia(TenenciaVivienda tenenciaActual) {
+	private void seleccionarTenencia(Detalle tenenciaActual) {
 
 		if (tenenciaActual == null) {
 			return;
@@ -866,9 +876,9 @@ public class CasoSocialFormDialog extends JDialog {
 
 		for (int i = 0; i < cmbTenencia.getItemCount(); i++) {
 
-			TenenciaVivienda item = cmbTenencia.getItemAt(i);
+			Detalle item = cmbTenencia.getItemAt(i);
 
-			if (item.getIdTenencia() == tenenciaActual.getIdTenencia()) {
+			if (item.getIdDetalle() == tenenciaActual.getIdDetalle()) {
 
 				cmbTenencia.setSelectedIndex(i);
 
@@ -877,7 +887,7 @@ public class CasoSocialFormDialog extends JDialog {
 		}
 	}
 
-	private void seleccionarCondicion(CondicionVivienda condicionActual) {
+	private void seleccionarCondicion(Detalle condicionActual) {
 
 		if (condicionActual == null) {
 			return;
@@ -885,9 +895,9 @@ public class CasoSocialFormDialog extends JDialog {
 
 		for (int i = 0; i < cmbCondicion.getItemCount(); i++) {
 
-			CondicionVivienda item = cmbCondicion.getItemAt(i);
+			Detalle item = cmbCondicion.getItemAt(i);
 
-			if (item.getIdCondicion() == condicionActual.getIdCondicion()) {
+			if (item.getIdDetalle() == condicionActual.getIdDetalle()) {
 
 				cmbCondicion.setSelectedIndex(i);
 

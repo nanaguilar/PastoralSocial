@@ -172,7 +172,7 @@ public class AsistenciasPanel extends JPanel {
 
 				dialog.setVisible(true);
 
-				if (dialog.isOperacionRealizada()) {
+				if (dialog.isGuardado()) {
 
 					cargarAsistencias();
 				}
@@ -333,7 +333,7 @@ public class AsistenciasPanel extends JPanel {
 
 			dialog.setVisible(true);
 
-			if (dialog.isOperacionRealizada()) {
+			if (dialog.isGuardado()) {
 
 				cargarAsistencias();
 			}

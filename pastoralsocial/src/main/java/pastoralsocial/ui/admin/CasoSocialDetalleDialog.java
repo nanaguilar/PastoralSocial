@@ -359,32 +359,32 @@ public class CasoSocialDetalleDialog extends JDialog {
 
 	private String obtenerTipoVivienda() {
 
-		if (casoSocial.getTipoVivienda() == null) {
+		if (casoSocial.getDetalleTipoVivienda() == null) {
 
 			return "No especificado";
 		}
 
-		return casoSocial.getTipoVivienda().toString();
+		return casoSocial.getDetalleTipoVivienda().toString();
 	}
 
 	private String obtenerTenencia() {
 
-		if (casoSocial.getTenenciaVivienda() == null) {
+		if (casoSocial.getDetalleTenenciaVivienda() == null) {
 
 			return "No especificado";
 		}
 
-		return casoSocial.getTenenciaVivienda().toString();
+		return casoSocial.getDetalleTenenciaVivienda().toString();
 	}
 
 	private String obtenerCondicion() {
 
-		if (casoSocial.getCondicionVivienda() == null) {
+		if (casoSocial.getDetalleCondicionVivienda() == null) {
 
 			return "No especificado";
 		}
 
-		return casoSocial.getCondicionVivienda().toString();
+		return casoSocial.getDetalleCondicionVivienda().toString();
 	}
 
 	private String formatearFecha(java.util.Date fecha) {

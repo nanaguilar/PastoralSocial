@@ -110,15 +110,15 @@ public class CasoSocialController {
 			throw new IllegalArgumentException("Debe seleccionar un usuario responsable.");
 		}
 
-		if (casoSocial.getTipoVivienda() == null) {
+		if (casoSocial.getDetalleTipoVivienda() == null) {
 			throw new IllegalArgumentException("Debe seleccionar el tipo de vivienda.");
 		}
 
-		if (casoSocial.getTenenciaVivienda() == null) {
+		if (casoSocial.getDetalleTenenciaVivienda() == null) {
 			throw new IllegalArgumentException("Debe seleccionar la tenencia de la vivienda.");
 		}
 
-		if (casoSocial.getCondicionVivienda() == null) {
+		if (casoSocial.getDetalleCondicionVivienda() == null) {
 			throw new IllegalArgumentException("Debe seleccionar la condición de la vivienda.");
 		}
 	}
