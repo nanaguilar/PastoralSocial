@@ -5,10 +5,12 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,6 +26,7 @@ import pastoralsocial.controller.AsistenciaController;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Asistencia;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.ReporteUtil;
 
 public class AsistenciasPanel extends JPanel {
 
@@ -37,6 +40,7 @@ public class AsistenciasPanel extends JPanel {
 	private JButton btnNuevaAsistencia;
 	private JButton btnEditar;
 	private JButton btnEliminar;
+	private JButton btnReporte;
 
 	@SuppressWarnings("unused")
 	private Usuario usuarioActual;
@@ -138,6 +142,14 @@ public class AsistenciasPanel extends JPanel {
 		btnEliminar.setFocusPainted(false);
 		btnEliminar.setBounds(730, 500, 170, 40);
 		add(btnEliminar);
+
+		// BOTON GENERAR REPORTE
+		btnReporte = new JButton("Generar Reporte");
+		btnReporte.setForeground(new Color(0, 45, 102));
+		btnReporte.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnReporte.setFocusPainted(false);
+		btnReporte.setBounds(40, 500, 180, 40);
+		add(btnReporte);
 	}
 
 	private void configurarEventos() {
@@ -230,6 +242,16 @@ public class AsistenciasPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 
 				eliminarAsistencia();
+			}
+		});
+
+		// GENERAR REPORTE
+		btnReporte.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				generarReporte();
 			}
 		});
 	}
@@ -429,6 +451,72 @@ public class AsistenciasPanel extends JPanel {
 
 			JOptionPane.showMessageDialog(this, "No fue posible eliminar la asistencia.", "Error",
 					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void generarReporte() {
+
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+
+			try {
+
+				String ruta = chooser.getSelectedFile().getAbsolutePath();
+				List<Asistencia> asistencias = asistenciaController.listar();
+
+				SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
+				String[] encabezados = { "ID", "Fecha", "Caso Social", "Tipo Asistencia", "Modalidad", "Frecuencia",
+						"Duración", "Valor", "Observaciones" };
+				String[][] datos = new String[asistencias.size()][9];
+
+				for (int i = 0; i < asistencias.size(); i++) {
+
+					Asistencia asist = asistencias.get(i);
+
+					String fechaFormato = asist.getFecha() != null ? formato.format(asist.getFecha()) : "";
+
+					String casoNombre = asist.getCasoSocial() != null ? asist.getCasoSocial().toString() : "";
+
+					String tipoAsistencia = asist.getDetalleTipoAsistencia() != null
+							? asist.getDetalleTipoAsistencia().toString()
+							: "";
+
+					datos[i] = new String[] {
+							String.valueOf(asist.getIdAsistencia()),
+							fechaFormato,
+							casoNombre,
+							tipoAsistencia,
+							asist.getModalidad() != null ? asist.getModalidad() : "",
+							asist.getFrecuencia() != null ? asist.getFrecuencia() : "",
+							asist.getDuracion() != null ? asist.getDuracion() : "",
+							asist.getValor() != null ? asist.getValor().toPlainString() : "",
+							asist.getObservaciones() != null ? asist.getObservaciones() : ""
+					};
+				}
+
+				ReporteUtil.generarPDF("Reporte de Asistencias", datos, encabezados,
+						ruta + "/ReporteAsistencias.pdf");
+				ReporteUtil.generarExcel("Reporte de Asistencias", datos, encabezados,
+						ruta + "/ReporteAsistencias.xls");
+
+				JOptionPane.showMessageDialog(this, "Reportes generados exitosamente en:\n" + ruta,
+						"Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+			} catch (IOException e) {
+
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 }

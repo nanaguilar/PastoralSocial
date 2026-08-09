@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import pastoralsocial.controller.CasoSocialController;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.ReporteUtil;
 
 public class CasosSocialesPanel extends JPanel {
 
@@ -113,6 +115,13 @@ public class CasosSocialesPanel extends JPanel {
 		btnEditar.setBounds(730, 505, 180, 40);
 		add(btnEditar);
 
+		// BOTÓN GENERAR REPORTE
+		JButton btnReporte = new JButton("Generar Reporte");
+		btnReporte.setForeground(new Color(0, 45, 102));
+		btnReporte.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnReporte.setBounds(40, 505, 180, 40);
+		add(btnReporte);
+
 		// EVENTOS
 		btnBuscar.addActionListener(new ActionListener() {
 
@@ -143,6 +152,14 @@ public class CasosSocialesPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				verDetalle();
+			}
+		});
+
+		btnReporte.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				generarReporte();
 			}
 		});
 	}
@@ -291,5 +308,56 @@ public class CasosSocialesPanel extends JPanel {
 		CasoSocialDetalleDialog dialog = new CasoSocialDetalleDialog(parent, caso);
 
 		dialog.setVisible(true);
+	}
+
+	private void generarReporte() {
+
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+
+			try {
+
+				String ruta = chooser.getSelectedFile().getAbsolutePath();
+				List<CasoSocial> casos = casosSocialController.listar();
+
+				String[] encabezados = { "ID", "Ficha", "Fecha Inicio", "Estado", "Parroquia", "Responsable" };
+				String[][] datos = new String[casos.size()][6];
+
+				for (int i = 0; i < casos.size(); i++) {
+
+					CasoSocial caso = casos.get(i);
+
+					String responsable = "";
+					if (caso.getUsuario() != null) {
+						responsable = caso.getUsuario().getNombre() + " " + caso.getUsuario().getApellidos();
+					}
+
+					datos[i] = new String[] {
+							String.valueOf(caso.getIdCasoSocial()),
+							caso.getNumeroFicha() != null ? caso.getNumeroFicha() : "",
+							caso.getFechaInicio() != null ? caso.getFechaInicio().toString() : "",
+									caso.getDetalleEstado() != null ? caso.getDetalleEstado().toString() : "",
+							caso.getParroquia() != null ? caso.getParroquia() : "",
+							responsable
+					};
+				}
+
+				ReporteUtil.generarPDF("Reporte de Casos Sociales", datos, encabezados,
+						ruta + "/ReporteCasosSociales.pdf");
+				ReporteUtil.generarExcel("Reporte de Casos Sociales", datos, encabezados,
+						ruta + "/ReporteCasosSociales.xls");
+
+				JOptionPane.showMessageDialog(this, "Reportes generados exitosamente en:\n" + ruta,
+						"Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 }

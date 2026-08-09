@@ -8,5 +8,6 @@
 	<classpathentry kind="src" path="pastoralsocial/src/main/java"/>
 	<classpathentry kind="lib" path="C:/Users/jimen/Downloads/hibernate_libs.zip"/>
 	<classpathentry kind="lib" path="C:/Users/jimen/Downloads/hibernate_libs/hibernate_libs/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jimen/Downloads/javax.mail-1.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

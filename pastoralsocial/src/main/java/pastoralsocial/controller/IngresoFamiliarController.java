@@ -66,11 +66,11 @@ public class IngresoFamiliarController {
 			throw new IllegalArgumentException("La información del ingreso familiar es obligatoria.");
 		}
 
-		if (ingreso.getIntegrante() == null) {
+		if (ingreso.getIntegrante() == null)
+		{
 			throw new IllegalArgumentException("Debe seleccionar un integrante.");
 
 		}
-
 		if (ingreso.getOcupacion() == null || ingreso.getOcupacion().trim().isEmpty())
 
 		{
