@@ -464,58 +464,56 @@ public class AsistenciasPanel extends JPanel {
 			try {
 
 				String ruta = chooser.getSelectedFile().getAbsolutePath();
-				List<Asistencia> asistencias = asistenciaController.listar();
 
-				SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+				CasoSocialController casoController = new CasoSocialController();
+				List<CasoSocial> casos = casoController.listar();
 
-				String[] encabezados = { "ID", "Fecha", "Caso Social", "Tipo Asistencia", "Modalidad", "Frecuencia",
-						"Duración", "Valor", "Observaciones" };
-				String[][] datos = new String[asistencias.size()][9];
+				if (casos == null || casos.isEmpty()) {
 
-				for (int i = 0; i < asistencias.size(); i++) {
-
-					Asistencia asist = asistencias.get(i);
-
-					String fechaFormato = asist.getFecha() != null ? formato.format(asist.getFecha()) : "";
-
-					String casoNombre = asist.getCasoSocial() != null ? asist.getCasoSocial().toString() : "";
-
-					String tipoAsistencia = asist.getDetalleTipoAsistencia() != null
-							? asist.getDetalleTipoAsistencia().toString()
-							: "";
-
-					datos[i] = new String[] {
-							String.valueOf(asist.getIdAsistencia()),
-							fechaFormato,
-							casoNombre,
-							tipoAsistencia,
-							asist.getModalidad() != null ? asist.getModalidad() : "",
-							asist.getFrecuencia() != null ? asist.getFrecuencia() : "",
-							asist.getDuracion() != null ? asist.getDuracion() : "",
-							asist.getValor() != null ? asist.getValor().toPlainString() : "",
-							asist.getObservaciones() != null ? asist.getObservaciones() : ""
-					};
+					JOptionPane.showMessageDialog(this, "No hay casos sociales para generar reportes.", "Sin datos",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
 				}
 
-				ReporteUtil.generarPDF("Reporte de Asistencias", datos, encabezados,
-						ruta + "/ReporteAsistencias.pdf");
-				ReporteUtil.generarExcel("Reporte de Asistencias", datos, encabezados,
-						ruta + "/ReporteAsistencias.xls");
+				int generados = 0;
 
-				JOptionPane.showMessageDialog(this, "Reportes generados exitosamente en:\n" + ruta,
+				for (CasoSocial caso : casos) {
+
+					try {
+
+						String nombreCaso = caso.getNumeroFicha() != null ? caso.getNumeroFicha()
+								: "Caso_" + caso.getIdCasoSocial();
+
+						// Generar PDF Adendum de Asistencias
+						String rutaPDF = ruta + "/ADENDUM_" + nombreCaso + ".pdf";
+						ReporteUtil.generarPDFAsistenciaCaso(caso, rutaPDF);
+
+						// Generar Excel Adendum de Asistencias
+						String rutaXLS = ruta + "/ADENDUM_" + nombreCaso + ".xls";
+						ReporteUtil.generarExcelAsistenciaCaso(caso, rutaXLS);
+
+						generados++;
+
+					} catch (Exception e) {
+
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(this,
+								"Error generando reporte para caso: " + caso.getNumeroFicha() + "\n"
+										+ e.getMessage(),
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+
+				JOptionPane.showMessageDialog(this,
+						"Reportes de Asistencias (Adendum) generados exitosamente.\n" + generados + " PDF y "
+								+ generados + " Excel creados en:\n" + ruta,
 						"Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-			} catch (IOException e) {
-
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
 
 			} catch (Exception e) {
 
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(), "Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

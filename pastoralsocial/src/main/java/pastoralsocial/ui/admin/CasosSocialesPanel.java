@@ -322,41 +322,52 @@ public class CasosSocialesPanel extends JPanel {
 				String ruta = chooser.getSelectedFile().getAbsolutePath();
 				List<CasoSocial> casos = casosSocialController.listar();
 
-				String[] encabezados = { "ID", "Ficha", "Fecha Inicio", "Estado", "Parroquia", "Responsable" };
-				String[][] datos = new String[casos.size()][6];
+				if (casos == null || casos.isEmpty()) {
 
-				for (int i = 0; i < casos.size(); i++) {
-
-					CasoSocial caso = casos.get(i);
-
-					String responsable = "";
-					if (caso.getUsuario() != null) {
-						responsable = caso.getUsuario().getNombre() + " " + caso.getUsuario().getApellidos();
-					}
-
-					datos[i] = new String[] {
-							String.valueOf(caso.getIdCasoSocial()),
-							caso.getNumeroFicha() != null ? caso.getNumeroFicha() : "",
-							caso.getFechaInicio() != null ? caso.getFechaInicio().toString() : "",
-									caso.getDetalleEstado() != null ? caso.getDetalleEstado().toString() : "",
-							caso.getParroquia() != null ? caso.getParroquia() : "",
-							responsable
-					};
+					JOptionPane.showMessageDialog(this, "No hay casos sociales para generar reportes.", "Sin datos",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
 				}
 
-				ReporteUtil.generarPDF("Reporte de Casos Sociales", datos, encabezados,
-						ruta + "/ReporteCasosSociales.pdf");
-				ReporteUtil.generarExcel("Reporte de Casos Sociales", datos, encabezados,
-						ruta + "/ReporteCasosSociales.xls");
+				int generados = 0;
 
-				JOptionPane.showMessageDialog(this, "Reportes generados exitosamente en:\n" + ruta,
+				for (CasoSocial caso : casos) {
+
+					try {
+
+						String nombreCaso = caso.getNumeroFicha() != null ? caso.getNumeroFicha()
+								: "Caso_" + caso.getIdCasoSocial();
+
+						// Generar PDF detallado
+						String rutaPDF = ruta + "/CASO_" + nombreCaso + ".pdf";
+						ReporteUtil.generarPDFCasoSocial(caso, rutaPDF);
+
+						// Generar Excel detallado
+						String rutaXLS = ruta + "/CASO_" + nombreCaso + ".xls";
+						ReporteUtil.generarExcelCasoSocial(caso, rutaXLS);
+
+						generados++;
+
+					} catch (Exception e) {
+
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(this,
+								"Error generando reporte para caso: " + caso.getNumeroFicha() + "\n"
+										+ e.getMessage(),
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+
+				JOptionPane.showMessageDialog(this,
+						"Reportes generados exitosamente.\n" + generados + " PDF y " + generados
+								+ " Excel creados en:\n" + ruta,
 						"Éxito", JOptionPane.INFORMATION_MESSAGE);
 
 			} catch (Exception e) {
 
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Error al generar reportes: " + e.getMessage(), "Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
