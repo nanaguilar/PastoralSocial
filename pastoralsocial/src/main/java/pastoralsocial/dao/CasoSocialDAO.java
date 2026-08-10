@@ -243,4 +243,25 @@ public class CasoSocialDAO implements DAO<CasoSocial> {
 			em.close();
 		}
 	}
+
+	public long contarCasosActivos() {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery(
+					"SELECT COUNT(c) FROM CasoSocial c " + "WHERE c.detalleEstado.descripcion = 'Activo'", Long.class);
+
+			return query.getSingleResult();
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al contar los casos activos.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
 }

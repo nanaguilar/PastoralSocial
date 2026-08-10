@@ -123,4 +123,9 @@ public class CasoSocialController {
 		}
 	}
 
+	public long contarCasosActivos() {
+
+		return casoSocialDAO.contarCasosActivos();
+	}
+
 }

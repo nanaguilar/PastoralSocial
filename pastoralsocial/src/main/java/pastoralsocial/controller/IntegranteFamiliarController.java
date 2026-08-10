@@ -191,4 +191,9 @@ public class IntegranteFamiliarController {
 			}
 		}
 	}
+
+	public long contarFamiliasRegistradas() {
+
+		return integranteFamiliarDAO.contarFamiliasRegistradas();
+	}
 }

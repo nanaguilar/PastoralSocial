@@ -12,6 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import pastoralsocial.controller.CasoSocialController;
+import pastoralsocial.controller.IntegranteFamiliarController;
+import pastoralsocial.controller.AsistenciaController;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.ui.admin.AsistenciasPanel;
 import pastoralsocial.ui.admin.CasosSocialesPanel;
@@ -28,9 +31,21 @@ public class MenuPrincipalAdminFrame extends JFrame {
 
 	private Usuario usuarioActual;
 
+	private CasoSocialController casoSocialController;
+	private IntegranteFamiliarController integranteFamiliarController;
+	private AsistenciaController asistenciaController;
+
+	private JLabel lblCasosValor;
+	private JLabel lblFamiliasValor;
+	private JLabel lblAsistenciasValor;
+
 	public MenuPrincipalAdminFrame(Usuario usuario) {
 
 		this.usuarioActual = usuario;
+
+		casoSocialController = new CasoSocialController();
+		integranteFamiliarController = new IntegranteFamiliarController();
+		asistenciaController = new AsistenciaController();
 
 		inicializarInterfaz();
 	}
@@ -124,9 +139,6 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		JButton btnUsuarios = crearBotonMenu("Usuarios", 340);
 		panelMenu.add(btnUsuarios);
 
-		JButton btnReportes = crearBotonMenu("Reportes", 385);
-		panelMenu.add(btnReportes);
-
 		// ZONA INFERIOR
 		JPanel separadorInferior = new JPanel();
 		separadorInferior.setBackground(new Color(40, 80, 130));
@@ -151,21 +163,19 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		contentPane.add(panelContenido);
 
 		// PANEL INICIO
-		JPanel panelInicio = crearPanelInicio();
 		UsuariosPanel panelUsuarios = new UsuariosPanel(usuarioActual);
 		CasosSocialesPanel casosSocialesPanel = new CasosSocialesPanel(usuarioActual);
 		GrupoFamiliarPanel grupoFamiliarPanel = new GrupoFamiliarPanel();
+		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
+
+		JPanel panelInicio = crearPanelInicio(casosSocialesPanel, panelAsistencias);
 
 		// MODULOS
-		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
-		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
-
 		panelContenido.add(panelInicio, "INICIO");
 		panelContenido.add(casosSocialesPanel, "CASOS SOCIALES");
 		panelContenido.add(grupoFamiliarPanel, "FAMILIAS");
 		panelContenido.add(panelAsistencias, "ASISTENCIAS");
 		panelContenido.add(panelUsuarios, "USUARIOS");
-		panelContenido.add(panelReportes, "REPORTES");
 
 		btnInicio.addActionListener(new ActionListener() {
 
@@ -173,6 +183,8 @@ public class MenuPrincipalAdminFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "INICIO");
+
+				actualizarIndicadores();
 			}
 		});
 
@@ -212,15 +224,6 @@ public class MenuPrincipalAdminFrame extends JFrame {
 			}
 		});
 
-		btnReportes.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				cardLayout.show(panelContenido, "REPORTES");
-			}
-		});
-
 		btnCerrarSesion.addActionListener(new ActionListener() {
 
 			@Override
@@ -234,7 +237,28 @@ public class MenuPrincipalAdminFrame extends JFrame {
 			}
 		});
 		cardLayout.show(panelContenido, "INICIO");
+		actualizarIndicadores();
 
+	}
+
+	private void actualizarIndicadores() {
+
+		try {
+
+			lblCasosValor.setText(String.valueOf(casoSocialController.contarCasosActivos()));
+
+			lblFamiliasValor.setText(String.valueOf(integranteFamiliarController.contarFamiliasRegistradas()));
+
+			lblAsistenciasValor.setText(String.valueOf(asistenciaController.contarAsistencias()));
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			lblCasosValor.setText("0");
+			lblFamiliasValor.setText("0");
+			lblAsistenciasValor.setText("0");
+		}
 	}
 
 	// BOTONES DEL MENU LATERAL
@@ -278,7 +302,8 @@ public class MenuPrincipalAdminFrame extends JFrame {
 	}
 
 	// PANEL INICIO
-	private JPanel crearPanelInicio() {
+	private JPanel crearPanelInicio(final CasosSocialesPanel casosSocialesPanel,
+			final AsistenciasPanel panelAsistencias) {
 
 		JPanel panelInicio = new JPanel();
 		panelInicio.setBackground(new Color(245, 247, 250));
@@ -317,7 +342,7 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		lblCasosTitulo.setBounds(20, 18, 210, 25);
 		tarjetaCasos.add(lblCasosTitulo);
 
-		JLabel lblCasosValor = new JLabel("0");
+		lblCasosValor = new JLabel("0");
 		lblCasosValor.setForeground(new Color(0, 45, 102));
 		lblCasosValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblCasosValor.setBounds(20, 55, 210, 40);
@@ -336,7 +361,7 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		lblFamiliasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaFamilias.add(lblFamiliasTitulo);
 
-		JLabel lblFamiliasValor = new JLabel("0");
+		lblFamiliasValor = new JLabel("0");
 		lblFamiliasValor.setForeground(new Color(0, 45, 102));
 		lblFamiliasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblFamiliasValor.setBounds(20, 55, 210, 40);
@@ -355,7 +380,7 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		lblAsistenciasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaAsistencias.add(lblAsistenciasTitulo);
 
-		JLabel lblAsistenciasValor = new JLabel("0");
+		lblAsistenciasValor = new JLabel("0");
 		lblAsistenciasValor.setForeground(new Color(0, 45, 102));
 		lblAsistenciasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblAsistenciasValor.setBounds(20, 55, 210, 40);
@@ -389,6 +414,24 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		btnNuevaAsistencia.setFocusPainted(false);
 		btnNuevaAsistencia.setBounds(260, 390, 200, 45);
 		panelInicio.add(btnNuevaAsistencia);
+
+		btnNuevoCaso.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				casosSocialesPanel.nuevoCaso();
+			}
+		});
+
+		btnNuevaAsistencia.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				panelAsistencias.nuevaAsistencia();
+			}
+		});
 
 		return panelInicio;
 	}

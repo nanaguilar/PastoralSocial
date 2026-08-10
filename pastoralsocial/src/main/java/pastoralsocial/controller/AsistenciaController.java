@@ -78,7 +78,6 @@ public class AsistenciaController {
 			throw new IllegalArgumentException("Debe seleccionar un caso social.");
 		}
 
-		// Antes: asistencia.getTipoAsistencia() == null
 		if (asistencia.getDetalleTipoAsistencia() == null) {
 			throw new IllegalArgumentException("Debe seleccionar un tipo de asistencia.");
 		}
@@ -88,4 +87,8 @@ public class AsistenciaController {
 		}
 	}
 
+	public long contarAsistencias() {
+
+		return asistenciaDAO.contarAsistencias();
+	}
 }

@@ -258,4 +258,25 @@ public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
 		}
 	}
 
+	public long contarFamiliasRegistradas() {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery(
+					"SELECT COUNT(DISTINCT i.casoSocial.idCasoSocial) " + "FROM IntegranteFamiliar i", Long.class);
+
+			return query.getSingleResult();
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al contar las familias registradas.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
 }

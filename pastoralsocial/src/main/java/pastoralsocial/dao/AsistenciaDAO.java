@@ -149,4 +149,23 @@ public class AsistenciaDAO implements DAO<Asistencia> {
 
 	}
 
+	public long contarAsistencias() {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery("SELECT COUNT(a) FROM Asistencia a", Long.class);
+
+			return query.getSingleResult();
+
+		} catch (Exception e) {
+
+			throw new RuntimeException("Error al contar las asistencias.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
 }

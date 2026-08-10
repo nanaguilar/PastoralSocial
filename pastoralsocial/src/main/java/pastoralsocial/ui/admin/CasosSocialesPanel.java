@@ -262,7 +262,7 @@ public class CasosSocialesPanel extends JPanel {
 		return casosSocialController.buscarPorId(idCaso);
 	}
 
-	private void nuevoCaso() {
+	public void nuevoCaso() {
 
 		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
 
