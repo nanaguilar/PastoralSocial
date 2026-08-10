@@ -264,4 +264,23 @@ public class CasoSocialDAO implements DAO<CasoSocial> {
 			em.close();
 		}
 	}
+
+	public int contarCasosActivosPorUsuario(Usuario usuario) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery("SELECT COUNT(c) FROM CasoSocial c " + "WHERE c.usuario = :usuario "
+					+ "AND c.detalleEstado.descripcion = 'Activo'", Long.class);
+
+			query.setParameter("usuario", usuario);
+
+			return query.getSingleResult().intValue();
+
+		} finally {
+
+			em.close();
+		}
+	}
 }

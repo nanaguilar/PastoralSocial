@@ -165,7 +165,7 @@ public class MenuPrincipalAdminFrame extends JFrame {
 		// PANEL INICIO
 		UsuariosPanel panelUsuarios = new UsuariosPanel(usuarioActual);
 		CasosSocialesPanel casosSocialesPanel = new CasosSocialesPanel(usuarioActual);
-		GrupoFamiliarPanel grupoFamiliarPanel = new GrupoFamiliarPanel();
+		GrupoFamiliarPanel grupoFamiliarPanel = new GrupoFamiliarPanel(usuarioActual);
 		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
 
 		JPanel panelInicio = crearPanelInicio(casosSocialesPanel, panelAsistencias);
@@ -183,7 +183,6 @@ public class MenuPrincipalAdminFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "INICIO");
-
 				actualizarIndicadores();
 			}
 		});
@@ -279,27 +278,27 @@ public class MenuPrincipalAdminFrame extends JFrame {
 	}
 
 	// PANEL DE CADA MODULO
-	private JPanel crearPanelModulo(String titulo, String descripcion) {
-
-		JPanel panel = new JPanel();
-
-		panel.setBackground(new Color(245, 247, 250));
-		panel.setLayout(null);
-
-		JLabel lblTitulo = new JLabel(titulo);
-		lblTitulo.setForeground(new Color(0, 45, 102));
-		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
-		lblTitulo.setBounds(40, 30, 500, 40);
-		panel.add(lblTitulo);
-		JLabel lblDescripcion = new JLabel(descripcion);
-
-		lblDescripcion.setForeground(new Color(90, 90, 90));
-		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		lblDescripcion.setBounds(40, 75, 750, 30);
-		panel.add(lblDescripcion);
-
-		return panel;
-	}
+//	private JPanel crearPanelModulo(String titulo, String descripcion) {
+//
+//		JPanel panel = new JPanel();
+//
+//		panel.setBackground(new Color(245, 247, 250));
+//		panel.setLayout(null);
+//
+//		JLabel lblTitulo = new JLabel(titulo);
+//		lblTitulo.setForeground(new Color(0, 45, 102));
+//		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+//		lblTitulo.setBounds(40, 30, 500, 40);
+//		panel.add(lblTitulo);
+//		JLabel lblDescripcion = new JLabel(descripcion);
+//
+//		lblDescripcion.setForeground(new Color(90, 90, 90));
+//		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+//		lblDescripcion.setBounds(40, 75, 750, 30);
+//		panel.add(lblDescripcion);
+//
+//		return panel;
+//	}
 
 	// PANEL INICIO
 	private JPanel crearPanelInicio(final CasosSocialesPanel casosSocialesPanel,

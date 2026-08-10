@@ -5,6 +5,7 @@ import java.util.List;
 import pastoralsocial.dao.IntegranteFamiliarDAO;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.IntegranteFamiliar;
+import pastoralsocial.modelo.Usuario;
 
 public class IntegranteFamiliarController {
 
@@ -195,5 +196,14 @@ public class IntegranteFamiliarController {
 	public long contarFamiliasRegistradas() {
 
 		return integranteFamiliarDAO.contarFamiliasRegistradas();
+	}
+
+	public int contarIntegrantesPorUsuario(Usuario usuario) {
+
+		if (usuario == null) {
+			return 0;
+		}
+
+		return integranteFamiliarDAO.contarIntegrantesPorUsuario(usuario);
 	}
 }

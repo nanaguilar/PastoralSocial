@@ -12,6 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import pastoralsocial.controller.CasoSocialController;
+import pastoralsocial.controller.IntegranteFamiliarController;
+import pastoralsocial.controller.AsistenciaController;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.ui.admin.AsistenciasPanel;
 import pastoralsocial.ui.admin.CasosSocialesPanel;
@@ -26,9 +29,21 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 
 	private Usuario usuarioActual;
 
+	private CasoSocialController casoSocialController;
+	private IntegranteFamiliarController integranteFamiliarController;
+	private AsistenciaController asistenciaController;
+
+	private JLabel lblCasosValor;
+	private JLabel lblFamiliasValor;
+	private JLabel lblAsistenciasValor;
+
 	public MenuPrincipalCoordinadorFrame(Usuario usuario) {
 
 		this.usuarioActual = usuario;
+
+		casoSocialController = new CasoSocialController();
+		integranteFamiliarController = new IntegranteFamiliarController();
+		asistenciaController = new AsistenciaController();
 
 		inicializarInterfaz();
 
@@ -167,6 +182,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "INICIO");
+				actualizarIndicadores();
 			}
 		});
 
@@ -221,7 +237,28 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 
 		// MOSTRAR INICIO CUANDO SE ABRE EL MENU
 		cardLayout.show(panelContenido, "INICIO");
+		actualizarIndicadores();
 
+	}
+
+	private void actualizarIndicadores() {
+
+		try {
+
+			lblCasosValor.setText(String.valueOf(casoSocialController.contarCasosActivos()));
+
+			lblFamiliasValor.setText(String.valueOf(integranteFamiliarController.contarFamiliasRegistradas()));
+
+			lblAsistenciasValor.setText(String.valueOf(asistenciaController.contarAsistencias()));
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			lblCasosValor.setText("0");
+			lblFamiliasValor.setText("0");
+			lblAsistenciasValor.setText("0");
+		}
 	}
 
 	// BOTONES DEL MENU LATERAL
@@ -312,7 +349,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		lblCasosTitulo.setBounds(20, 18, 210, 25);
 		tarjetaCasos.add(lblCasosTitulo);
 
-		JLabel lblCasosValor = new JLabel("0");
+		lblCasosValor = new JLabel("0");
 		lblCasosValor.setForeground(new Color(0, 45, 102));
 		lblCasosValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblCasosValor.setBounds(20, 55, 210, 40);
@@ -331,7 +368,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		lblFamiliasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaFamilias.add(lblFamiliasTitulo);
 
-		JLabel lblFamiliasValor = new JLabel("0");
+		lblFamiliasValor = new JLabel("0");
 		lblFamiliasValor.setForeground(new Color(0, 45, 102));
 		lblFamiliasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblFamiliasValor.setBounds(20, 55, 210, 40);
@@ -350,7 +387,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		lblAsistenciasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaAsistencias.add(lblAsistenciasTitulo);
 
-		JLabel lblAsistenciasValor = new JLabel("0");
+		lblAsistenciasValor = new JLabel("0");
 		lblAsistenciasValor.setForeground(new Color(0, 45, 102));
 		lblAsistenciasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblAsistenciasValor.setBounds(20, 55, 210, 40);
@@ -368,22 +405,6 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		lblAccesosDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 13));
 		lblAccesosDescripcion.setBounds(40, 350, 500, 25);
 		panelInicio.add(lblAccesosDescripcion);
-
-		JButton btnNuevoCaso = new JButton("Nuevo caso social");
-		btnNuevoCaso.setForeground(Color.WHITE);
-		btnNuevoCaso.setBackground(new Color(0, 45, 102));
-		btnNuevoCaso.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnNuevoCaso.setFocusPainted(false);
-		btnNuevoCaso.setBounds(40, 390, 200, 45);
-		panelInicio.add(btnNuevoCaso);
-
-		JButton btnNuevaAsistencia = new JButton("Nueva asistencia");
-		btnNuevaAsistencia.setForeground(Color.WHITE);
-		btnNuevaAsistencia.setBackground(new Color(0, 45, 102));
-		btnNuevaAsistencia.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnNuevaAsistencia.setFocusPainted(false);
-		btnNuevaAsistencia.setBounds(260, 390, 200, 45);
-		panelInicio.add(btnNuevaAsistencia);
 
 		return panelInicio;
 	}

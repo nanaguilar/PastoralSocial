@@ -128,4 +128,13 @@ public class CasoSocialController {
 		return casoSocialDAO.contarCasosActivos();
 	}
 
+	public int contarCasosActivosPorUsuario(Usuario usuario) {
+
+		if (usuario == null) {
+			return 0;
+		}
+
+		return casoSocialDAO.contarCasosActivosPorUsuario(usuario);
+	}
+
 }

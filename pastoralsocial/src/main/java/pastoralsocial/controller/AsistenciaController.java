@@ -6,6 +6,7 @@ import java.util.List;
 import pastoralsocial.dao.AsistenciaDAO;
 import pastoralsocial.modelo.Asistencia;
 import pastoralsocial.modelo.CasoSocial;
+import pastoralsocial.modelo.Usuario;
 
 public class AsistenciaController {
 
@@ -90,5 +91,14 @@ public class AsistenciaController {
 	public long contarAsistencias() {
 
 		return asistenciaDAO.contarAsistencias();
+	}
+
+	public int contarAsistenciasPorUsuario(Usuario usuario) {
+
+		if (usuario == null) {
+			return 0;
+		}
+
+		return asistenciaDAO.contarAsistenciasPorUsuario(usuario);
 	}
 }

@@ -91,6 +91,7 @@ public class CasosSocialesPanel extends JPanel {
 			public boolean isCellEditable(int row, int column) {
 				return false;
 			}
+
 		};
 
 		tablaCasos = new JTable(modeloTabla);
@@ -121,6 +122,12 @@ public class CasosSocialesPanel extends JPanel {
 		btnReporte.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnReporte.setBounds(40, 505, 180, 40);
 		add(btnReporte);
+
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if (rol.equals("Trabajador Social")) {
+			btnReporte.setVisible(false);
+		}
 
 		// EVENTOS
 		btnBuscar.addActionListener(new ActionListener() {
@@ -170,21 +177,33 @@ public class CasosSocialesPanel extends JPanel {
 
 			modeloTabla.setRowCount(0);
 
-			List<CasoSocial> casos = casosSocialController.listar();
+			List<CasoSocial> casos;
+
+			String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+			if (rol.equals("Administrador") || rol.equals("Coordinador")) {
+
+				casos = casosSocialController.listar();
+
+			} else if (rol.equals("Trabajador Social")) {
+
+				casos = casosSocialController.buscarPorUsuario(usuarioActual);
+
+			} else {
+
+				casos = casosSocialController.listar();
+			}
 
 			for (CasoSocial caso : casos) {
 
 				String responsable = "";
 
 				if (caso.getUsuario() != null) {
-
 					responsable = caso.getUsuario().getNombre() + " " + caso.getUsuario().getApellidos();
 				}
 
-				modeloTabla.addRow(new Object[] {
-
-						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
-						caso.getParroquia(), responsable });
+				modeloTabla.addRow(new Object[] { caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(),
+						caso.getDetalleEstado(), caso.getParroquia(), responsable });
 			}
 
 		} catch (Exception e) {
@@ -204,13 +223,42 @@ public class CasosSocialesPanel extends JPanel {
 
 			List<CasoSocial> casos;
 
-			if (texto.isEmpty()) {
+			String rol = usuarioActual.getDetalleRol().getDescripcion();
 
-				casos = casosSocialController.listar();
+			if (rol.equals("Administrador") || rol.equals("Coordinador")) {
+
+				if (texto.isEmpty()) {
+					casos = casosSocialController.listar();
+				} else {
+					casos = casosSocialController.buscar(texto);
+				}
+
+			} else if (rol.equals("Trabajador Social")) {
+
+				casos = casosSocialController.buscarPorUsuario(usuarioActual);
+
+				if (!texto.isEmpty()) {
+
+					String textoMinuscula = texto.toLowerCase();
+
+					for (int i = casos.size() - 1; i >= 0; i--) {
+
+						CasoSocial caso = casos.get(i);
+
+						String ficha = caso.getNumeroFicha() != null ? caso.getNumeroFicha().toLowerCase() : "";
+
+						String parroquia = caso.getParroquia() != null ? caso.getParroquia().toLowerCase() : "";
+
+						if (!ficha.contains(textoMinuscula) && !parroquia.contains(textoMinuscula)) {
+
+							casos.remove(i);
+						}
+					}
+				}
 
 			} else {
 
-				casos = casosSocialController.buscar(texto);
+				casos = casosSocialController.listar();
 			}
 
 			modeloTabla.setRowCount(0);
@@ -224,10 +272,8 @@ public class CasosSocialesPanel extends JPanel {
 					responsable = caso.getUsuario().getNombre() + " " + caso.getUsuario().getApellidos();
 				}
 
-				modeloTabla.addRow(new Object[] {
-
-						caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(), caso.getDetalleEstado(),
-						caso.getParroquia(), responsable });
+				modeloTabla.addRow(new Object[] { caso.getIdCasoSocial(), caso.getNumeroFicha(), caso.getFechaInicio(),
+						caso.getDetalleEstado(), caso.getParroquia(), responsable });
 			}
 
 			if (casos.isEmpty()) {
@@ -266,12 +312,11 @@ public class CasosSocialesPanel extends JPanel {
 
 		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
 
-		CasoSocialFormDialog dialog = new CasoSocialFormDialog(parent);
+		CasoSocialFormDialog dialog = new CasoSocialFormDialog(parent, usuarioActual);
 
 		dialog.setVisible(true);
 
 		if (dialog.isGuardado()) {
-
 			cargarCasos();
 		}
 	}
@@ -352,16 +397,13 @@ public class CasosSocialesPanel extends JPanel {
 
 						e.printStackTrace();
 						JOptionPane.showMessageDialog(this,
-								"Error generando reporte para caso: " + caso.getNumeroFicha() + "\n"
-										+ e.getMessage(),
+								"Error generando reporte para caso: " + caso.getNumeroFicha() + "\n" + e.getMessage(),
 								"Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 
-				JOptionPane.showMessageDialog(this,
-						"Reportes generados exitosamente.\n" + generados + " PDF y " + generados
-								+ " Excel creados en:\n" + ruta,
-						"Éxito", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Reportes generados exitosamente.\n" + generados + " PDF y "
+						+ generados + " Excel creados en:\n" + ruta, "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
 			} catch (Exception e) {
 
@@ -370,5 +412,9 @@ public class CasosSocialesPanel extends JPanel {
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+
+	public void actualizar() {
+		cargarCasos();
 	}
 }

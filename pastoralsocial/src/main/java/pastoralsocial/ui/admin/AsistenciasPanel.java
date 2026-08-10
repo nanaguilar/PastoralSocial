@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
@@ -41,7 +41,6 @@ public class AsistenciasPanel extends JPanel {
 	private JButton btnEliminar;
 	private JButton btnReporte;
 
-	@SuppressWarnings("unused")
 	private Usuario usuarioActual;
 
 	private final AsistenciaController asistenciaController;
@@ -103,7 +102,7 @@ public class AsistenciasPanel extends JPanel {
 
 				new Object[][] {},
 
-				new String[] { "ID", "Fecha", "Caso social", "Tipo de asistencia", "Modalidad", "Valor" }) {
+				new String[] { "ID", "Fecha", "N.º ficha", "Tipo de asistencia", "Modalidad", "Valor" }) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -116,14 +115,13 @@ public class AsistenciasPanel extends JPanel {
 
 		// TABLA
 		tablaAsistencias = new JTable(modeloTabla);
-		tablaAsistencias.setFont(new Font("SansSerif", Font.PLAIN, 13));
-		tablaAsistencias.setRowHeight(32);
-		tablaAsistencias.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-		tablaAsistencias.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tablaAsistencias.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		tablaAsistencias.setRowHeight(30);
+		tablaAsistencias.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
 		// SCROLL
 		JScrollPane scrollPane = new JScrollPane(tablaAsistencias);
-		scrollPane.setBounds(40, 195, 860, 280);
+		scrollPane.setBounds(40, 195, 870, 285);
 		add(scrollPane);
 
 		// BOTON EDITAR
@@ -218,7 +216,7 @@ public class AsistenciasPanel extends JPanel {
 
 		try {
 
-			List<Asistencia> asistencias = asistenciaController.listar();
+			List<Asistencia> asistencias = obtenerAsistenciasVisibles();
 
 			mostrarAsistencias(asistencias);
 
@@ -229,6 +227,33 @@ public class AsistenciasPanel extends JPanel {
 			JOptionPane.showMessageDialog(this, "No fue posible cargar las asistencias.", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	private List<Asistencia> obtenerAsistenciasVisibles() {
+
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if ("Administrador".equalsIgnoreCase(rol) || "Coordinador".equalsIgnoreCase(rol)) {
+
+			return asistenciaController.listar();
+		}
+
+		List<Asistencia> asistenciasVisibles = new ArrayList<Asistencia>();
+
+		CasoSocialController casoSocialController = new CasoSocialController();
+
+		List<CasoSocial> casosAsignados = casoSocialController.buscarPorUsuario(usuarioActual);
+
+		for (CasoSocial caso : casosAsignados) {
+
+			List<Asistencia> asistenciasCaso = asistenciaController.buscarPorCasoSocial(caso);
+
+			if (asistenciasCaso != null) {
+				asistenciasVisibles.addAll(asistenciasCaso);
+			}
+		}
+
+		return asistenciasVisibles;
 	}
 
 	private void mostrarAsistencias(List<Asistencia> asistencias) {
@@ -268,7 +293,7 @@ public class AsistenciasPanel extends JPanel {
 
 			String texto = txtBuscar.getText().trim().toLowerCase();
 
-			List<Asistencia> asistencias = asistenciaController.listar();
+			List<Asistencia> asistencias = obtenerAsistenciasVisibles();
 
 			modeloTabla.setRowCount(0);
 
@@ -295,9 +320,8 @@ public class AsistenciasPanel extends JPanel {
 
 					String valor = asistencia.getValor() != null ? asistencia.getValor().toPlainString() : "";
 
-					modeloTabla.addRow(new Object[] {
-
-							asistencia.getIdAsistencia(), fecha, caso, tipo, modalidad, valor });
+					modeloTabla
+							.addRow(new Object[] { asistencia.getIdAsistencia(), fecha, caso, tipo, modalidad, valor });
 				}
 			}
 
@@ -324,11 +348,22 @@ public class AsistenciasPanel extends JPanel {
 
 		try {
 
-			List<CasoSocial> casos = casoSocialController.listar();
+			List<CasoSocial> casos;
+
+			String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+			if ("Administrador".equalsIgnoreCase(rol) || "Coordinador".equalsIgnoreCase(rol)) {
+
+				casos = casoSocialController.listar();
+
+			} else {
+
+				casos = casoSocialController.buscarPorUsuario(usuarioActual);
+			}
 
 			if (casos == null || casos.isEmpty()) {
 
-				JOptionPane.showMessageDialog(this, "No existen casos sociales registrados para asociar la asistencia.",
+				JOptionPane.showMessageDialog(this, "No existen casos sociales asignados para asociar la asistencia.",
 						"Nueva asistencia", JOptionPane.WARNING_MESSAGE);
 
 				return;
@@ -469,12 +504,25 @@ public class AsistenciasPanel extends JPanel {
 				String ruta = chooser.getSelectedFile().getAbsolutePath();
 
 				CasoSocialController casoController = new CasoSocialController();
-				List<CasoSocial> casos = casoController.listar();
+
+				List<CasoSocial> casos;
+
+				String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+				if ("Administrador".equalsIgnoreCase(rol) || "Coordinador".equalsIgnoreCase(rol)) {
+
+					casos = casoController.listar();
+
+				} else {
+
+					casos = casoController.buscarPorUsuario(usuarioActual);
+				}
 
 				if (casos == null || casos.isEmpty()) {
 
 					JOptionPane.showMessageDialog(this, "No hay casos sociales para generar reportes.", "Sin datos",
 							JOptionPane.INFORMATION_MESSAGE);
+
 					return;
 				}
 
@@ -486,12 +534,8 @@ public class AsistenciasPanel extends JPanel {
 
 						String nombreCaso = caso.getNumeroFicha() != null ? caso.getNumeroFicha()
 								: "Caso_" + caso.getIdCasoSocial();
-
-						// Generar PDF Adendum de Asistencias
 						String rutaPDF = ruta + "/ADENDUM_" + nombreCaso + ".pdf";
 						ReporteUtil.generarPDFAsistenciaCaso(caso, rutaPDF);
-
-						// Generar Excel Adendum de Asistencias
 						String rutaXLS = ruta + "/ADENDUM_" + nombreCaso + ".xls";
 						ReporteUtil.generarExcelAsistenciaCaso(caso, rutaXLS);
 
@@ -519,5 +563,9 @@ public class AsistenciasPanel extends JPanel {
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+	
+	public void actualizar() {
+		cargarAsistencias();
 	}
 }

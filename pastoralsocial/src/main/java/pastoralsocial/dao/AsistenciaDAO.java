@@ -8,6 +8,7 @@ import javax.persistence.TypedQuery;
 
 import pastoralsocial.modelo.Asistencia;
 import pastoralsocial.modelo.CasoSocial;
+import pastoralsocial.modelo.Usuario;
 import pastoralsocial.util.JPAUtil;
 
 public class AsistenciaDAO implements DAO<Asistencia> {
@@ -162,6 +163,25 @@ public class AsistenciaDAO implements DAO<Asistencia> {
 		} catch (Exception e) {
 
 			throw new RuntimeException("Error al contar las asistencias.", e);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
+	public int contarAsistenciasPorUsuario(Usuario usuario) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery(
+					"SELECT COUNT(a) FROM Asistencia a " + "WHERE a.casoSocial.usuario = :usuario", Long.class);
+
+			query.setParameter("usuario", usuario);
+
+			return query.getSingleResult().intValue();
 
 		} finally {
 

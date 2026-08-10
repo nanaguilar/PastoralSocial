@@ -8,6 +8,7 @@ import javax.persistence.TypedQuery;
 
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.IntegranteFamiliar;
+import pastoralsocial.modelo.Usuario;
 import pastoralsocial.util.JPAUtil;
 
 public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
@@ -279,4 +280,22 @@ public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
 		}
 	}
 
+	public int contarIntegrantesPorUsuario(Usuario usuario) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<Long> query = em.createQuery("SELECT COUNT(i) FROM IntegranteFamiliar i "
+					+ "WHERE i.casoSocial.usuario = :usuario " + "AND i.estado = true", Long.class);
+
+			query.setParameter("usuario", usuario);
+
+			return query.getSingleResult().intValue();
+
+		} finally {
+
+			em.close();
+		}
+	}
 }

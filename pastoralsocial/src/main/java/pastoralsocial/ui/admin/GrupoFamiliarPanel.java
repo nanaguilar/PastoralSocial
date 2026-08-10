@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 
 import pastoralsocial.controller.CasoSocialController;
 import pastoralsocial.modelo.CasoSocial;
+import pastoralsocial.modelo.Usuario;
 
 public class GrupoFamiliarPanel extends JPanel {
 
@@ -30,9 +31,11 @@ public class GrupoFamiliarPanel extends JPanel {
 	private DefaultTableModel modeloTabla;
 
 	private final CasoSocialController casoSocialController;
+	private final Usuario usuarioActual;
 
-	public GrupoFamiliarPanel() {
+	public GrupoFamiliarPanel(Usuario usuarioActual) {
 
+		this.usuarioActual = usuarioActual;
 		this.casoSocialController = new CasoSocialController();
 
 		inicializarInterfaz();
@@ -126,7 +129,17 @@ public class GrupoFamiliarPanel extends JPanel {
 
 			modeloTabla.setRowCount(0);
 
-			List<CasoSocial> casos = casoSocialController.listar();
+			List<CasoSocial> casos;
+
+			if (usuarioActual.getDetalleRol().getDescripcion().equals("Administrador")
+					|| usuarioActual.getDetalleRol().getDescripcion().equals("Coordinador")) {
+
+				casos = casoSocialController.listar();
+
+			} else {
+
+				casos = casoSocialController.buscarPorUsuario(usuarioActual);
+			}
 
 			for (CasoSocial caso : casos) {
 
@@ -159,29 +172,38 @@ public class GrupoFamiliarPanel extends JPanel {
 
 	private void buscarCasos() {
 
-		String texto = txtBuscar.getText().trim();
+		String texto = txtBuscar.getText().trim().toLowerCase();
 
 		try {
 
 			List<CasoSocial> casos;
 
-			if (texto.isEmpty()) {
+			if (usuarioActual.getDetalleRol().getDescripcion().equals("Administrador")
+					|| usuarioActual.getDetalleRol().getDescripcion().equals("Coordinador")) {
 
 				casos = casoSocialController.listar();
 
 			} else {
 
-				casos = casoSocialController.buscar(texto);
+				casos = casoSocialController.buscarPorUsuario(usuarioActual);
 			}
 
 			modeloTabla.setRowCount(0);
 
 			for (CasoSocial caso : casos) {
 
-				agregarCasoTabla(caso);
+				if (texto.isEmpty()
+						|| (caso.getNumeroFicha() != null && caso.getNumeroFicha().toLowerCase().contains(texto))
+						|| (caso.getParroquia() != null && caso.getParroquia().toLowerCase().contains(texto))
+						|| (caso.getProvincia() != null && caso.getProvincia().toLowerCase().contains(texto))
+						|| (caso.getCanton() != null && caso.getCanton().toLowerCase().contains(texto))
+						|| (caso.getDistrito() != null && caso.getDistrito().toLowerCase().contains(texto))) {
+
+					agregarCasoTabla(caso);
+				}
 			}
 
-			if (casos.isEmpty()) {
+			if (tablaCasos.getRowCount() == 0) {
 
 				JOptionPane.showMessageDialog(this, "No se encontraron casos sociales que coincidan con la búsqueda.",
 						"Búsqueda", JOptionPane.INFORMATION_MESSAGE);
@@ -234,5 +256,9 @@ public class GrupoFamiliarPanel extends JPanel {
 		dialog.setLocationRelativeTo(parent);
 		dialog.setResizable(false);
 		dialog.setVisible(true);
+	}
+
+	public void actualizar() {
+		cargarCasos();
 	}
 }

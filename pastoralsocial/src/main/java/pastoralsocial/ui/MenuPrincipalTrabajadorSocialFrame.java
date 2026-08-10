@@ -12,10 +12,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import pastoralsocial.controller.CasoSocialController;
+import pastoralsocial.controller.IntegranteFamiliarController;
+import pastoralsocial.controller.AsistenciaController;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.ui.admin.AsistenciasPanel;
-import pastoralsocial.ui.trabajadorsocial.CasosSocialesTrabajadorPanel;
-import pastoralsocial.ui.trabajadorsocial.GrupoFamiliarTrabajadorPanel;
+import pastoralsocial.ui.admin.CasosSocialesPanel;
+import pastoralsocial.ui.admin.GrupoFamiliarPanel;
 
 public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 
@@ -27,12 +30,30 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 
 	private Usuario usuarioActual;
 
+	private CasoSocialController casoSocialController;
+	private IntegranteFamiliarController integranteFamiliarController;
+	private AsistenciaController asistenciaController;
+	private CasosSocialesPanel casosSocialesPanel;
+	private GrupoFamiliarPanel grupoFamiliarPanel;
+	private AsistenciasPanel panelAsistencias;
+
+	private JLabel lblCasosValor;
+	private JLabel lblFamiliasValor;
+	private JLabel lblAsistenciasValor;
+
 	public MenuPrincipalTrabajadorSocialFrame(Usuario usuario) {
 
 		this.usuarioActual = usuario;
 
-		inicializarInterfaz();
+		casoSocialController = new CasoSocialController();
+		integranteFamiliarController = new IntegranteFamiliarController();
+		asistenciaController = new AsistenciaController();
 
+		casosSocialesPanel = new CasosSocialesPanel(usuarioActual);
+		grupoFamiliarPanel = new GrupoFamiliarPanel(usuarioActual);
+		panelAsistencias = new AsistenciasPanel(usuarioActual);
+
+		inicializarInterfaz();
 	}
 
 	private void inicializarInterfaz() {
@@ -113,16 +134,6 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		JButton btnAsistencias = crearBotonMenu("Asistencias", 260);
 		panelMenu.add(btnAsistencias);
 
-		// SECCIÓN ADMINISTRACIÓN
-		JLabel lblAdministracion = new JLabel("ADMINISTRACIÓN");
-		lblAdministracion.setForeground(new Color(150, 175, 205));
-		lblAdministracion.setFont(new Font("SansSerif", Font.BOLD, 11));
-		lblAdministracion.setBounds(30, 315, 170, 20);
-		panelMenu.add(lblAdministracion);
-
-		JButton btnReportes = crearBotonMenu("Reportes", 340);
-		panelMenu.add(btnReportes);
-
 		// ZONA INFERIOR
 		JPanel separadorInferior = new JPanel();
 		separadorInferior.setBackground(new Color(40, 80, 130));
@@ -148,18 +159,11 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 
 		// PANEL INICIO
 		JPanel panelInicio = crearPanelInicio();
-		CasosSocialesTrabajadorPanel casosSocialesPanel = new CasosSocialesTrabajadorPanel(usuarioActual);
-		GrupoFamiliarTrabajadorPanel grupoFamiliarPanel = new GrupoFamiliarTrabajadorPanel(usuarioActual);
-
-		// MODULOS
-		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
-		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
 
 		panelContenido.add(panelInicio, "INICIO");
 		panelContenido.add(casosSocialesPanel, "CASOS SOCIALES");
 		panelContenido.add(grupoFamiliarPanel, "FAMILIAS");
 		panelContenido.add(panelAsistencias, "ASISTENCIAS");
-		panelContenido.add(panelReportes, "REPORTES");
 
 		btnInicio.addActionListener(new ActionListener() {
 
@@ -167,6 +171,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "INICIO");
+				actualizarIndicadores();
 			}
 		});
 
@@ -175,6 +180,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				casosSocialesPanel.actualizar();
 				cardLayout.show(panelContenido, "CASOS SOCIALES");
 			}
 		});
@@ -184,6 +190,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				grupoFamiliarPanel.actualizar();
 				cardLayout.show(panelContenido, "FAMILIAS");
 			}
 		});
@@ -194,15 +201,6 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "ASISTENCIAS");
-			}
-		});
-
-		btnReportes.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				cardLayout.show(panelContenido, "REPORTES");
 			}
 		});
 
@@ -221,7 +219,27 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 
 		// MOSTRAR INICIO CUANDO SE ABRE EL MENU
 		cardLayout.show(panelContenido, "INICIO");
+		actualizarIndicadores();
+	}
 
+	private void actualizarIndicadores() {
+
+		try {
+
+			lblCasosValor.setText(String.valueOf(casoSocialController.contarCasosActivosPorUsuario(usuarioActual)));
+			lblFamiliasValor
+					.setText(String.valueOf(integranteFamiliarController.contarIntegrantesPorUsuario(usuarioActual)));
+			lblAsistenciasValor
+					.setText(String.valueOf(asistenciaController.contarAsistenciasPorUsuario(usuarioActual)));
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+			lblCasosValor.setText("0");
+			lblFamiliasValor.setText("0");
+			lblAsistenciasValor.setText("0");
+		}
 	}
 
 	// BOTONES DEL MENU LATERAL
@@ -244,33 +262,33 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 	}
 
 	// PANEL DE CADA MODULO
-	private JPanel crearPanelModulo(String titulo, String descripcion) {
-
-		JPanel panel = new JPanel();
-
-		panel.setBackground(new Color(245, 247, 250));
-		panel.setLayout(null);
-
-		JLabel lblTitulo = new JLabel(titulo);
-
-		lblTitulo.setForeground(new Color(0, 45, 102));
-		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
-
-		lblTitulo.setBounds(40, 30, 500, 40);
-
-		panel.add(lblTitulo);
-
-		JLabel lblDescripcion = new JLabel(descripcion);
-
-		lblDescripcion.setForeground(new Color(90, 90, 90));
-		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-		lblDescripcion.setBounds(40, 75, 750, 30);
-
-		panel.add(lblDescripcion);
-
-		return panel;
-	}
+//	private JPanel crearPanelModulo(String titulo, String descripcion) {
+//
+//		JPanel panel = new JPanel();
+//
+//		panel.setBackground(new Color(245, 247, 250));
+//		panel.setLayout(null);
+//
+//		JLabel lblTitulo = new JLabel(titulo);
+//
+//		lblTitulo.setForeground(new Color(0, 45, 102));
+//		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+//
+//		lblTitulo.setBounds(40, 30, 500, 40);
+//
+//		panel.add(lblTitulo);
+//
+//		JLabel lblDescripcion = new JLabel(descripcion);
+//
+//		lblDescripcion.setForeground(new Color(90, 90, 90));
+//		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+//
+//		lblDescripcion.setBounds(40, 75, 750, 30);
+//
+//		panel.add(lblDescripcion);
+//
+//		return panel;
+//	}
 
 	// PANEL INICIO
 	private JPanel crearPanelInicio() {
@@ -312,7 +330,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		lblCasosTitulo.setBounds(20, 18, 210, 25);
 		tarjetaCasos.add(lblCasosTitulo);
 
-		JLabel lblCasosValor = new JLabel("0");
+		lblCasosValor = new JLabel("0");
 		lblCasosValor.setForeground(new Color(0, 45, 102));
 		lblCasosValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblCasosValor.setBounds(20, 55, 210, 40);
@@ -331,7 +349,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		lblFamiliasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaFamilias.add(lblFamiliasTitulo);
 
-		JLabel lblFamiliasValor = new JLabel("0");
+		lblFamiliasValor = new JLabel("0");
 		lblFamiliasValor.setForeground(new Color(0, 45, 102));
 		lblFamiliasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblFamiliasValor.setBounds(20, 55, 210, 40);
@@ -350,7 +368,7 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		lblAsistenciasTitulo.setBounds(20, 18, 210, 25);
 		tarjetaAsistencias.add(lblAsistenciasTitulo);
 
-		JLabel lblAsistenciasValor = new JLabel("0");
+		lblAsistenciasValor = new JLabel("0");
 		lblAsistenciasValor.setForeground(new Color(0, 45, 102));
 		lblAsistenciasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblAsistenciasValor.setBounds(20, 55, 210, 40);
@@ -385,7 +403,27 @@ public class MenuPrincipalTrabajadorSocialFrame extends JFrame {
 		btnNuevaAsistencia.setBounds(260, 390, 200, 45);
 		panelInicio.add(btnNuevaAsistencia);
 
+		btnNuevoCaso.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				casosSocialesPanel.nuevoCaso();
+				actualizarIndicadores();
+			}
+		});
+
+		btnNuevaAsistencia.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				panelAsistencias.nuevaAsistencia();
+				actualizarIndicadores();
+			}
+		});
+
 		return panelInicio;
 	}
-
+	
 }
