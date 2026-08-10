@@ -149,6 +149,66 @@ public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
 
 	}
 
+	public IntegranteFamiliar buscarIntegranteEnOtroCaso(String identificacion, int idCasoActual) {
+
+		EntityManager em = null;
+
+		try {
+
+			em = JPAUtil.getEntityManager();
+
+			List<IntegranteFamiliar> resultados = em
+					.createQuery("SELECT i FROM IntegranteFamiliar i " + "WHERE i.identificacion = :identificacion "
+							+ "AND i.casoSocial.idCasoSocial <> :idCasoActual "
+							+ "AND (i.casoSocial.detalleEstado.descripcion = 'Activo' "
+							+ "OR i.casoSocial.detalleEstado.descripcion = 'En proceso') " + "AND i.estado = true",
+							IntegranteFamiliar.class)
+					.setParameter("identificacion", identificacion).setParameter("idCasoActual", idCasoActual)
+					.setMaxResults(1).getResultList();
+
+			if (resultados.isEmpty()) {
+				return null;
+			}
+
+			return resultados.get(0);
+
+		} finally {
+
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+	}
+
+	public IntegranteFamiliar buscarPorIdentificacionEnCaso(String identificacion, int idCasoSocial, int idIntegrante) {
+
+		EntityManager em = JPAUtil.getEntityManager();
+
+		try {
+
+			TypedQuery<IntegranteFamiliar> query = em.createQuery(
+					"SELECT i FROM IntegranteFamiliar i " + "WHERE LOWER(i.identificacion) = LOWER(:identificacion) "
+							+ "AND i.casoSocial.idCasoSocial = :idCasoSocial " + "AND i.idIntegrante <> :idIntegrante",
+					IntegranteFamiliar.class);
+
+			query.setParameter("identificacion", identificacion.trim());
+			query.setParameter("idCasoSocial", idCasoSocial);
+			query.setParameter("idIntegrante", idIntegrante);
+
+			List<IntegranteFamiliar> resultados = query.getResultList();
+
+			if (resultados.isEmpty()) {
+				return null;
+			}
+
+			return resultados.get(0);
+
+		} finally {
+
+			em.close();
+		}
+	}
+
 	public IntegranteFamiliar buscarPorIdentificacion(String identificacion) {
 
 		EntityManager em = JPAUtil.getEntityManager();
@@ -171,21 +231,26 @@ public class IntegranteFamiliarDAO implements DAO<IntegranteFamiliar> {
 		}
 	}
 
-	public IntegranteFamiliar buscarJefeHogarActivo(CasoSocial casoSocial) {
+	public IntegranteFamiliar buscarJefeHogarActivo(CasoSocial casoSocial, int idIntegrante) {
 
 		EntityManager em = JPAUtil.getEntityManager();
 
 		try {
 
 			TypedQuery<IntegranteFamiliar> query = em.createQuery("SELECT i FROM IntegranteFamiliar i "
-					+ "WHERE i.casoSocial = :casoSocial " + "AND i.jefeHogar = true " + "AND i.estado = true",
-					IntegranteFamiliar.class);
+					+ "WHERE i.casoSocial = :casoSocial " + "AND i.jefeHogar = true " + "AND i.estado = true "
+					+ "AND i.idIntegrante <> :idIntegrante", IntegranteFamiliar.class);
 
 			query.setParameter("casoSocial", casoSocial);
+			query.setParameter("idIntegrante", idIntegrante);
 
 			List<IntegranteFamiliar> resultados = query.getResultList();
 
-			return resultados.isEmpty() ? null : resultados.get(0);
+			if (resultados.isEmpty()) {
+				return null;
+			}
+
+			return resultados.get(0);
 
 		} finally {
 

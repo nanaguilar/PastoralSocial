@@ -360,7 +360,17 @@ public class IntegrantesFamiliaresPanel extends JPanel {
 
 		try {
 
-			integrante.setEstado(!integrante.isEstado());
+			boolean nuevoEstadoBoolean = !integrante.isEstado();
+
+			if (integrante.isJefeHogar() && !nuevoEstadoBoolean) {
+
+				JOptionPane.showMessageDialog(this, "No se puede desactivar un jefe de hogar. ",
+						"Operación no permitida", JOptionPane.WARNING_MESSAGE);
+
+				return;
+			}
+
+			integrante.setEstado(nuevoEstadoBoolean);
 
 			integranteController.actualizar(integrante);
 
@@ -368,6 +378,10 @@ public class IntegrantesFamiliaresPanel extends JPanel {
 					"Grupo familiar", JOptionPane.INFORMATION_MESSAGE);
 
 			cargarIntegrantes();
+
+		} catch (IllegalArgumentException e) {
+
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
 
 		} catch (Exception e) {
 
