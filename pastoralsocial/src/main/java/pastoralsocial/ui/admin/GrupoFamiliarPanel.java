@@ -34,7 +34,6 @@ public class GrupoFamiliarPanel extends JPanel {
 	private final Usuario usuarioActual;
 
 	public GrupoFamiliarPanel(Usuario usuarioActual) {
-
 		this.usuarioActual = usuarioActual;
 		this.casoSocialController = new CasoSocialController();
 
@@ -55,7 +54,7 @@ public class GrupoFamiliarPanel extends JPanel {
 		add(lblTitulo);
 
 		// DESCRIPCION
-		JLabel lblDescripcion = new JLabel("Seleccione un caso social para consultar y gestionar su grupo familiar.");
+		JLabel lblDescripcion = new JLabel("Seleccione un caso social para consultar su grupo familiar.");
 		lblDescripcion.setForeground(new Color(90, 90, 90));
 		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		lblDescripcion.setBounds(40, 75, 650, 25);
@@ -95,12 +94,18 @@ public class GrupoFamiliarPanel extends JPanel {
 		scrollPane.setBounds(40, 195, 870, 285);
 		add(scrollPane);
 
-		// BOTON GESTIONAR
-		JButton btnGestionar = new JButton("Gestionar grupo familiar");
+		// BOTON CONSULTAR
+		JButton btnGestionar = new JButton("Consultar grupo familiar");
 		btnGestionar.setForeground(new Color(0, 45, 102));
 		btnGestionar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnGestionar.setBounds(690, 505, 220, 40);
 		add(btnGestionar);
+
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if ("Coordinador".equalsIgnoreCase(rol)) {
+			btnGestionar.setText("Consultar grupo familiar");
+		}
 
 		// EVENTO BUSCAR
 		btnBuscar.addActionListener(new ActionListener() {
@@ -178,14 +183,19 @@ public class GrupoFamiliarPanel extends JPanel {
 
 			List<CasoSocial> casos;
 
-			if (usuarioActual.getDetalleRol().getDescripcion().equals("Administrador")
-					|| usuarioActual.getDetalleRol().getDescripcion().equals("Coordinador")) {
+			String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+			if ("Administrador".equalsIgnoreCase(rol) || "Coordinador".equalsIgnoreCase(rol)) {
 
 				casos = casoSocialController.listar();
 
-			} else {
+			} else if ("Trabajador Social".equalsIgnoreCase(rol)) {
 
 				casos = casoSocialController.buscarPorUsuario(usuarioActual);
+
+			} else {
+
+				casos = new java.util.ArrayList<CasoSocial>();
 			}
 
 			modeloTabla.setRowCount(0);
@@ -248,8 +258,8 @@ public class GrupoFamiliarPanel extends JPanel {
 		JDialog dialog = new JDialog(parent, "Grupo familiar - " + caso.getNumeroFicha(), true);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-		IntegrantesFamiliaresPanel panelGrupoFamiliar = new IntegrantesFamiliaresPanel(caso);
-
+		IntegrantesFamiliaresPanel panelGrupoFamiliar = new IntegrantesFamiliaresPanel(caso, usuarioActual);
+		
 		dialog.setContentPane(panelGrupoFamiliar);
 
 		dialog.setSize(970, 850);

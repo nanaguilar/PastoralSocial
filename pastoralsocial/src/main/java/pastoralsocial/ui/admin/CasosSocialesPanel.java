@@ -116,14 +116,19 @@ public class CasosSocialesPanel extends JPanel {
 		btnEditar.setBounds(730, 505, 180, 40);
 		add(btnEditar);
 
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if ("Coordinador".equalsIgnoreCase(rol)) {
+			btnNuevoCaso.setVisible(false);
+			btnEditar.setVisible(false);
+		}
+
 		// BOTÓN GENERAR REPORTE
 		JButton btnReporte = new JButton("Generar Reporte");
 		btnReporte.setForeground(new Color(0, 45, 102));
 		btnReporte.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnReporte.setBounds(40, 505, 180, 40);
 		add(btnReporte);
-
-		String rol = usuarioActual.getDetalleRol().getDescripcion();
 
 		if (rol.equals("Trabajador Social")) {
 			btnReporte.setVisible(false);
@@ -331,7 +336,7 @@ public class CasosSocialesPanel extends JPanel {
 
 		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
 
-		CasoSocialFormDialog dialog = new CasoSocialFormDialog(parent, caso);
+		CasoSocialFormDialog dialog = new CasoSocialFormDialog(parent, caso, usuarioActual);
 
 		dialog.setVisible(true);
 
@@ -357,6 +362,8 @@ public class CasosSocialesPanel extends JPanel {
 
 	private void generarReporte() {
 
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+		
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -364,8 +371,19 @@ public class CasosSocialesPanel extends JPanel {
 
 			try {
 
-				String ruta = chooser.getSelectedFile().getAbsolutePath();
-				List<CasoSocial> casos = casosSocialController.listar();
+	            String ruta = chooser.getSelectedFile().getAbsolutePath();
+
+	            List<CasoSocial> casos;
+
+	            if ("Administrador".equalsIgnoreCase(rol)
+	                    || "Coordinador".equalsIgnoreCase(rol)) {
+
+	                casos = casosSocialController.listar();
+
+	            } else {
+
+	                casos = casosSocialController.buscarPorUsuario(usuarioActual);
+	            }
 
 				if (casos == null || casos.isEmpty()) {
 

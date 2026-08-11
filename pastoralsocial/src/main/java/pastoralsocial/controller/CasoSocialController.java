@@ -5,6 +5,7 @@ import java.util.List;
 import pastoralsocial.dao.CasoSocialDAO;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.EmailUtil;
 
 public class CasoSocialController {
 
@@ -37,6 +38,16 @@ public class CasoSocialController {
 		validar(casoSocial);
 
 		casoSocialDAO.save(casoSocial);
+
+		Usuario responsable = casoSocial.getUsuario();
+
+		if (responsable != null && responsable.getCorreoElectronico() != null
+				&& !responsable.getCorreoElectronico().trim().isEmpty()) {
+
+			String nombre = responsable.getNombre() + " " + responsable.getApellidos();
+
+			EmailUtil.enviarNotificacionCaso(responsable.getCorreoElectronico(), nombre, casoSocial);
+		}
 	}
 
 	public void actualizar(CasoSocial casoSocial) {

@@ -11,6 +11,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import pastoralsocial.modelo.CasoSocial;
+
 public class EmailUtil {
 
 	private static final String REMITENTE = "sigcas.ps@gmail.com";
@@ -248,6 +250,106 @@ public class EmailUtil {
 					+ "font-size:12px;color:#777;'>" + "<strong>SIGCAS</strong><br>"
 					+ "Sistema Integral de Gestión de Casos Sociales<br><br>"
 					+ "Este es un correo automático. Por favor, no responda a este mensaje." + "</td>" + "</tr>"
+					+ "</table>" + "</td></tr>" + "</table>" + "</body>" + "</html>";
+
+			message.setContent(cuerpoHtml, "text/html; charset=utf-8");
+
+			Transport.send(message);
+
+			return true;
+
+		} catch (MessagingException e) {
+
+			e.printStackTrace();
+			return false;
+
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public static boolean enviarNotificacionCaso(String correoDestino, String nombre, CasoSocial caso) {
+
+		Properties props = new Properties();
+
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+		Session session = Session.getInstance(props, new Authenticator() {
+
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(REMITENTE, CLAVE_APLICACION);
+			}
+		});
+
+		try {
+
+			Message message = new MimeMessage(session);
+
+			message.setFrom(new InternetAddress(REMITENTE, "Pastoral Social"));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(correoDestino));
+
+			message.setSubject("SIGCAS - Caso social asignado");
+
+			String responsable = nombre != null ? nombre : "Trabajador Social";
+			String numeroFicha = caso.getNumeroFicha() != null ? caso.getNumeroFicha() : "No especificado";
+			String fechaInicio = caso.getFechaInicio() != null ? caso.getFechaInicio().toString() : "No especificada";
+			String parroquia = caso.getParroquia() != null ? caso.getParroquia() : "No especificada";
+
+			String cuerpoHtml = "<!DOCTYPE html>" + "<html>"
+					+ "<body style='margin:0;padding:0;background:#f5f7fb;font-family:Segoe UI,Arial,sans-serif;'>"
+					+ "<table width='100%' cellpadding='0' cellspacing='0' style='padding:30px;'>"
+					+ "<tr><td align='center'>" + "<table width='600' cellpadding='0' cellspacing='0' "
+					+ "style='background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #dfe6ee;'>"
+
+					+ "<tr>" + "<td style='background:#002d66;padding:28px;text-align:center;'>"
+					+ "<h1 style='margin:0;color:white;font-size:28px;'>SIGCAS</h1>"
+					+ "<p style='margin:6px 0 0;color:#d9e6f7;font-size:14px;'>"
+					+ "Sistema Integral de Gestión de Casos Sociales" + "</p>" + "</td>" + "</tr>"
+
+					+ "<tr>" + "<td style='padding:35px;'>"
+					+ "<h2 style='margin-top:0;color:#002d66;'>Caso social asignado</h2>"
+					+ "<p style='font-size:15px;color:#444;'>" + "Hola <strong>" + responsable + "</strong>," + "</p>"
+
+					+ "<p style='font-size:15px;color:#444;line-height:1.6;'>"
+					+ "Se le informa que ha sido asignado como " + "<strong>responsable de un caso social</strong> "
+					+ "en el sistema <strong>SIGCAS</strong>." + "</p>"
+
+					+ "<div style='background:#eef4ff;border:1px solid #d5e3f7;"
+					+ "border-radius:8px;padding:20px;margin:25px 0;'>"
+					+ "<p style='margin:0 0 12px;color:#555;font-size:14px;'>" + "<strong>Información del caso</strong>"
+					+ "</p>"
+
+					+ "<p style='margin:7px 0;color:#444;font-size:14px;'>" + "<strong>Número de ficha:</strong> "
+					+ numeroFicha + "</p>"
+					+ "<p style='margin:7px 0;color:#444;font-size:14px;'>" + "<strong>Fecha de inicio:</strong> "
+					+ fechaInicio + "</p>"
+					+ "<p style='margin:7px 0;color:#444;font-size:14px;'>" + "<strong>Parroquia:</strong> " + parroquia
+					+ "</p>"
+					+ "</div>"
+
+					+ "<div style='background:#f7f9fc;border-left:5px solid #002d66;" + "padding:15px;margin:25px 0;'>"
+					+ "<strong style='color:#002d66;'>Importante</strong><br>"
+					+ "<span style='color:#555;font-size:14px;line-height:1.6;'>"
+					+ "Puede ingresar al sistema SIGCAS para consultar "
+					+ "y gestionar la información correspondiente al caso asignado." + "</span>" + "</div>"
+
+					+ "<p style='font-size:14px;color:#666;line-height:1.6;'>"
+					+ "Si considera que esta asignación es incorrecta, "
+					+ "comuníquese con el administrador o coordinador del sistema." + "</p>"
+
+					+ "</td>" + "</tr>"
+					+ "<tr>" + "<td style='background:#f4f6f9;padding:20px;text-align:center;"
+					+ "font-size:12px;color:#777;'>" + "<strong>SIGCAS</strong><br>"
+					+ "Sistema Integral de Gestión de Casos Sociales<br><br>"
+					+ "Este es un correo automático. Por favor, no responda a este mensaje." + "</td>" + "</tr>"
+
 					+ "</table>" + "</td></tr>" + "</table>" + "</body>" + "</html>";
 
 			message.setContent(cuerpoHtml, "text/html; charset=utf-8");

@@ -217,18 +217,41 @@ public class RecuperarPasswordFrame extends JFrame {
 		txtConfirmarClave.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		panel.add(txtConfirmarClave);
 
-		btnCambiarClave.setBounds(30, 350, 340, 45);
+		btnCambiarClave.setBounds(30, 370, 340, 45);
 		btnCambiarClave.setBackground(Color.WHITE);
 		btnCambiarClave.setForeground(new Color(0, 45, 102));
 		btnCambiarClave.setFont(new Font("SansSerif", Font.BOLD, 14));
 		btnCambiarClave.setFocusPainted(false);
 		panel.add(btnCambiarClave);
 
+		JCheckBox chkMostrar = new JCheckBox("Mostrar contraseñas");
+		chkMostrar.setBounds(30, 330, 200, 25);
+		chkMostrar.setBackground(Color.WHITE);
+		chkMostrar.setForeground(new Color(0, 45, 102));
+		chkMostrar.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		chkMostrar.setFocusPainted(false);
+		panel.add(chkMostrar);
+
+		chkMostrar.addActionListener(new java.awt.event.ActionListener() {
+
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+
+				if (chkMostrar.isSelected()) {
+					txtNuevaClave.setEchoChar('\u0000');
+					txtConfirmarClave.setEchoChar('\u0000');
+				} else {
+					txtNuevaClave.setEchoChar('•');
+					txtConfirmarClave.setEchoChar('•');
+				}
+			}
+		});
+		
 		JPanel info = new JPanel();
 		info.setBackground(new Color(240, 247, 255));
 		info.setBorder(BorderFactory.createLineBorder(new Color(220, 230, 245)));
 		info.setLayout(null);
-		info.setBounds(30, 420, 340, 75);
+		info.setBounds(30, 440, 340, 75);
 
 		JLabel lblInfo = new JLabel(
 				"<html>Una vez guardada la nueva contraseña podrá iniciar sesión nuevamente en SIGCAS.</html>");

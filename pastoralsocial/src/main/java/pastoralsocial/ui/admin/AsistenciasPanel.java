@@ -37,6 +37,7 @@ public class AsistenciasPanel extends JPanel {
 
 	private JButton btnBuscar;
 	private JButton btnNuevaAsistencia;
+	private JButton btnVerDetalle;
 	private JButton btnEditar;
 	private JButton btnEliminar;
 	private JButton btnReporte;
@@ -124,12 +125,19 @@ public class AsistenciasPanel extends JPanel {
 		scrollPane.setBounds(40, 195, 870, 285);
 		add(scrollPane);
 
+		// BOTON DETALLE
+		btnVerDetalle = new JButton("Ver detalle");
+		btnVerDetalle.setForeground(new Color(0, 45, 102));
+		btnVerDetalle.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnVerDetalle.setBounds(430, 500, 140, 40);
+		add(btnVerDetalle);
+
 		// BOTON EDITAR
 		btnEditar = new JButton("Editar asistencia");
 		btnEditar.setForeground(new Color(0, 45, 102));
 		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnEditar.setFocusPainted(false);
-		btnEditar.setBounds(540, 500, 170, 40);
+		btnEditar.setBounds(580, 500, 150, 40);
 		add(btnEditar);
 
 		// BOTON ELIMINAR
@@ -137,8 +145,16 @@ public class AsistenciasPanel extends JPanel {
 		btnEliminar.setForeground(new Color(0, 45, 102));
 		btnEliminar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnEliminar.setFocusPainted(false);
-		btnEliminar.setBounds(730, 500, 170, 40);
+		btnEliminar.setBounds(740, 500, 170, 40);
 		add(btnEliminar);
+
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if ("Coordinador".equalsIgnoreCase(rol)) {
+			btnNuevaAsistencia.setVisible(false);
+			btnEditar.setVisible(false);
+			btnEliminar.setVisible(false);
+		}
 
 		// BOTON GENERAR REPORTE
 		btnReporte = new JButton("Generar Reporte");
@@ -168,6 +184,14 @@ public class AsistenciasPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 
 				buscarAsistencias();
+			}
+		});
+
+		btnVerDetalle.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				verDetalle();
 			}
 		});
 
@@ -210,6 +234,8 @@ public class AsistenciasPanel extends JPanel {
 				generarReporte();
 			}
 		});
+		
+		
 	}
 
 	public void cargarAsistencias() {
@@ -254,6 +280,37 @@ public class AsistenciasPanel extends JPanel {
 		}
 
 		return asistenciasVisibles;
+	}
+
+	private void verDetalle() {
+
+		int fila = tablaAsistencias.getSelectedRow();
+
+		if (fila == -1) {
+
+			JOptionPane.showMessageDialog(this, "Debe seleccionar una asistencia.", "Asistencias",
+					JOptionPane.WARNING_MESSAGE);
+
+			return;
+		}
+
+		int idAsistencia = Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+
+		Asistencia asistencia = asistenciaController.buscarPorId(idAsistencia);
+
+		if (asistencia == null) {
+
+			JOptionPane.showMessageDialog(this, "No fue posible encontrar la asistencia.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+
+			return;
+		}
+
+		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+
+		AsistenciaDetalleDialog dialog = new AsistenciaDetalleDialog(parent, asistencia);
+
+		dialog.setVisible(true);
 	}
 
 	private void mostrarAsistencias(List<Asistencia> asistencias) {
@@ -564,7 +621,7 @@ public class AsistenciasPanel extends JPanel {
 			}
 		}
 	}
-	
+
 	public void actualizar() {
 		cargarAsistencias();
 	}

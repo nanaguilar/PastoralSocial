@@ -25,6 +25,7 @@ import pastoralsocial.controller.IntegranteFamiliarController;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.IngresoFamiliar;
 import pastoralsocial.modelo.IntegranteFamiliar;
+import pastoralsocial.modelo.Usuario;
 
 public class IntegrantesFamiliaresPanel extends JPanel {
 
@@ -45,9 +46,12 @@ public class IntegrantesFamiliaresPanel extends JPanel {
 
 	private final NumberFormat formatoMoneda = NumberFormat.getCurrencyInstance(new Locale("es", "CR"));
 
-	public IntegrantesFamiliaresPanel(CasoSocial casoSocial) {
+	private final Usuario usuarioActual;
+
+	public IntegrantesFamiliaresPanel(CasoSocial casoSocial, Usuario usuarioActual) {
 
 		this.casoSocial = casoSocial;
+		this.usuarioActual = usuarioActual;
 
 		this.integranteController = new IntegranteFamiliarController();
 		this.ingresoController = new IngresoFamiliarController();
@@ -172,6 +176,17 @@ public class IntegrantesFamiliaresPanel extends JPanel {
 		btnEliminarIngreso.setFont(new Font("SansSerif", Font.BOLD, 12));
 		btnEliminarIngreso.setBounds(735, 600, 175, 38);
 		add(btnEliminarIngreso);
+
+		String rol = usuarioActual.getDetalleRol().getDescripcion();
+
+		if ("Coordinador".equalsIgnoreCase(rol)) {
+			btnNuevoIntegrante.setVisible(false);
+			btnEditar.setVisible(false);
+			btnCambiarEstado.setVisible(false);
+			btnNuevoIngreso.setVisible(false);
+			btnEditarIngreso.setVisible(false);
+			btnEliminarIngreso.setVisible(false);
+		}
 
 		// EVENTOS
 		btnNuevoIntegrante.addActionListener(new ActionListener() {

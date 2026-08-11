@@ -18,6 +18,7 @@ import pastoralsocial.controller.AsistenciaController;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.ui.admin.AsistenciasPanel;
 import pastoralsocial.ui.admin.CasosSocialesPanel;
+import pastoralsocial.ui.admin.GrupoFamiliarPanel;
 
 public class MenuPrincipalCoordinadorFrame extends JFrame {
 
@@ -165,8 +166,7 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		CasosSocialesPanel casosSocialesPanel = new CasosSocialesPanel(usuarioActual);
 
 		// MODULOS
-		JPanel panelGrupoFamiliar = crearPanelModulo("Grupo familiar",
-				"Consulte y administre los integrantes de los grupos familiares.");
+		GrupoFamiliarPanel panelGrupoFamiliar = new GrupoFamiliarPanel(usuarioActual);
 		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
 		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
 
@@ -392,19 +392,6 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		lblAsistenciasValor.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lblAsistenciasValor.setBounds(20, 55, 210, 40);
 		tarjetaAsistencias.add(lblAsistenciasValor);
-
-		// ACCESOS RAPIDOS
-		JLabel lblAccesos = new JLabel("Accesos rápidos");
-		lblAccesos.setForeground(new Color(0, 45, 102));
-		lblAccesos.setFont(new Font("SansSerif", Font.BOLD, 18));
-		lblAccesos.setBounds(40, 310, 300, 30);
-		panelInicio.add(lblAccesos);
-
-		JLabel lblAccesosDescripcion = new JLabel("Accede rápidamente a las principales funciones de gestión.");
-		lblAccesosDescripcion.setForeground(new Color(90, 90, 90));
-		lblAccesosDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 13));
-		lblAccesosDescripcion.setBounds(40, 350, 500, 25);
-		panelInicio.add(lblAccesosDescripcion);
 
 		return panelInicio;
 	}
