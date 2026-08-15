@@ -1,8 +1,6 @@
 package pastoralsocial.ui;
 
-import pastoralsocial.dao.BitacoraDAO;
 import pastoralsocial.dao.UsuarioDAO;
-import pastoralsocial.modelo.Bitacora;
 import pastoralsocial.modelo.Usuario;
 import pastoralsocial.util.EmailUtil;
 
@@ -26,7 +24,6 @@ public class RecuperarPasswordFrame extends JFrame {
 	private JButton btnCambiarClave = new JButton("Guardar contraseña");
 
 	private UsuarioDAO usuarioDAO = new UsuarioDAO();
-	private BitacoraDAO bitacoraDAO = new BitacoraDAO();
 
 	private String correoSolicitado;
 	private Usuario usuarioEnRecuperacion;
@@ -392,9 +389,6 @@ public class RecuperarPasswordFrame extends JFrame {
 			error("No pude actualizar la contraseña.");
 			return;
 		}
-
-		bitacoraDAO.registrar(Bitacora.RESTABLECER_CLAVE, "Usuario", usuarioEnRecuperacion.getUsername(),
-				"Recuperación por código enviado al correo");
 
 		JOptionPane.showMessageDialog(this,
 				"La contraseña fue restablecida correctamente.\n\n"

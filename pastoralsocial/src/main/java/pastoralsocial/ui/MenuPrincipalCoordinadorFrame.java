@@ -128,16 +128,6 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		JButton btnAsistencias = crearBotonMenu("Asistencias", 260);
 		panelMenu.add(btnAsistencias);
 
-		// SECCIÓN ADMINISTRACIÓN
-		JLabel lblAdministracion = new JLabel("ADMINISTRACIÓN");
-		lblAdministracion.setForeground(new Color(150, 175, 205));
-		lblAdministracion.setFont(new Font("SansSerif", Font.BOLD, 11));
-		lblAdministracion.setBounds(30, 315, 170, 20);
-		panelMenu.add(lblAdministracion);
-
-		JButton btnReportes = crearBotonMenu("Reportes", 340);
-		panelMenu.add(btnReportes);
-
 		// ZONA INFERIOR
 		JPanel separadorInferior = new JPanel();
 		separadorInferior.setBackground(new Color(40, 80, 130));
@@ -168,13 +158,11 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 		// MODULOS
 		GrupoFamiliarPanel panelGrupoFamiliar = new GrupoFamiliarPanel(usuarioActual);
 		AsistenciasPanel panelAsistencias = new AsistenciasPanel(usuarioActual);
-		JPanel panelReportes = crearPanelModulo("Reportes", "Consulte y genere información consolidada del sistema.");
 
 		panelContenido.add(panelInicio, "INICIO");
 		panelContenido.add(casosSocialesPanel, "CASOS SOCIALES");
 		panelContenido.add(panelGrupoFamiliar, "FAMILIAS");
 		panelContenido.add(panelAsistencias, "ASISTENCIAS");
-		panelContenido.add(panelReportes, "REPORTES");
 
 		btnInicio.addActionListener(new ActionListener() {
 
@@ -210,15 +198,6 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				cardLayout.show(panelContenido, "ASISTENCIAS");
-			}
-		});
-
-		btnReportes.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				cardLayout.show(panelContenido, "REPORTES");
 			}
 		});
 
@@ -281,33 +260,33 @@ public class MenuPrincipalCoordinadorFrame extends JFrame {
 	}
 
 	// PANEL DE CADA MODULO
-	private JPanel crearPanelModulo(String titulo, String descripcion) {
-
-		JPanel panel = new JPanel();
-
-		panel.setBackground(new Color(245, 247, 250));
-		panel.setLayout(null);
-
-		JLabel lblTitulo = new JLabel(titulo);
-
-		lblTitulo.setForeground(new Color(0, 45, 102));
-		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
-
-		lblTitulo.setBounds(40, 30, 500, 40);
-
-		panel.add(lblTitulo);
-
-		JLabel lblDescripcion = new JLabel(descripcion);
-
-		lblDescripcion.setForeground(new Color(90, 90, 90));
-		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
-		lblDescripcion.setBounds(40, 75, 750, 30);
-
-		panel.add(lblDescripcion);
-
-		return panel;
-	}
+//	private JPanel crearPanelModulo(String titulo, String descripcion) {
+//
+//		JPanel panel = new JPanel();
+//
+//		panel.setBackground(new Color(245, 247, 250));
+//		panel.setLayout(null);
+//
+//		JLabel lblTitulo = new JLabel(titulo);
+//
+//		lblTitulo.setForeground(new Color(0, 45, 102));
+//		lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+//
+//		lblTitulo.setBounds(40, 30, 500, 40);
+//
+//		panel.add(lblTitulo);
+//
+//		JLabel lblDescripcion = new JLabel(descripcion);
+//
+//		lblDescripcion.setForeground(new Color(90, 90, 90));
+//		lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+//
+//		lblDescripcion.setBounds(40, 75, 750, 30);
+//
+//		panel.add(lblDescripcion);
+//
+//		return panel;
+//	}
 
 	// PANEL INICIO
 	private JPanel crearPanelInicio() {

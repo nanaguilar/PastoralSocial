@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -104,11 +105,17 @@ public class CasosSocialesPanel extends JPanel {
 		add(scrollPane);
 
 		// BOTONES INFERIORES
-		JButton btnVerDetalle = new JButton("Ver detalle");
-		btnVerDetalle.setForeground(new Color(0, 45, 102));
-		btnVerDetalle.setFont(new Font("SansSerif", Font.BOLD, 13));
-		btnVerDetalle.setBounds(565, 505, 150, 40);
-		add(btnVerDetalle);
+		JButton btnExpediente = new JButton("Ver expediente");
+		btnExpediente.setForeground(new Color(0, 45, 102));
+		btnExpediente.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnExpediente.setBounds(400, 505, 150, 40);
+		add(btnExpediente);
+
+		JButton btnAdendums = new JButton("Ver adendums");
+		btnAdendums.setForeground(new Color(0, 45, 102));
+		btnAdendums.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnAdendums.setBounds(565, 505, 150, 40);
+		add(btnAdendums);
 
 		JButton btnEditar = new JButton("Editar caso");
 		btnEditar.setForeground(new Color(0, 45, 102));
@@ -159,11 +166,20 @@ public class CasosSocialesPanel extends JPanel {
 			}
 		});
 
-		btnVerDetalle.addActionListener(new ActionListener() {
+		btnExpediente.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				verDetalle();
+				verExpediente();
+			}
+		});
+
+		btnAdendums.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				verAdendums();
 			}
 		});
 
@@ -174,6 +190,44 @@ public class CasosSocialesPanel extends JPanel {
 				generarReporte();
 			}
 		});
+	}
+
+	private void verExpediente() {
+
+		CasoSocial caso = obtenerCasoSeleccionado();
+
+		if (caso == null) {
+			return;
+		}
+
+		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+		JDialog dialog = new JDialog(parent, "Expediente digital - " + caso.getNumeroFicha(), true);
+		ExpedientePanel panel = new ExpedientePanel(caso);
+
+		dialog.setContentPane(panel);
+		dialog.setSize(950, 750);
+		dialog.setLocationRelativeTo(parent);
+		dialog.setResizable(false);
+		dialog.setVisible(true);
+	}
+
+	private void verAdendums() {
+
+		CasoSocial caso = obtenerCasoSeleccionado();
+
+		if (caso == null) {
+			return;
+		}
+
+		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+		AdendumPanel panel = new AdendumPanel(caso, usuarioActual);
+		JDialog dialog = new JDialog(parent, "Adendums del caso " + caso.getNumeroFicha(), true);
+
+		dialog.setContentPane(panel);
+		dialog.setSize(950, 750);
+		dialog.setLocationRelativeTo(parent);
+		dialog.setResizable(false);
+		dialog.setVisible(true);
 	}
 
 	private void cargarCasos() {
@@ -345,25 +399,25 @@ public class CasosSocialesPanel extends JPanel {
 		}
 	}
 
-	private void verDetalle() {
-
-		CasoSocial caso = obtenerCasoSeleccionado();
-
-		if (caso == null) {
-			return;
-		}
-
-		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
-
-		CasoSocialDetalleDialog dialog = new CasoSocialDetalleDialog(parent, caso);
-
-		dialog.setVisible(true);
-	}
+//	private void verDetalle() {
+//
+//		CasoSocial caso = obtenerCasoSeleccionado();
+//
+//		if (caso == null) {
+//			return;
+//		}
+//
+//		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+//
+//		CasoSocialDetalleDialog dialog = new CasoSocialDetalleDialog(parent, caso);
+//
+//		dialog.setVisible(true);
+//	}
 
 	private void generarReporte() {
 
 		String rol = usuarioActual.getDetalleRol().getDescripcion();
-		
+
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -371,19 +425,18 @@ public class CasosSocialesPanel extends JPanel {
 
 			try {
 
-	            String ruta = chooser.getSelectedFile().getAbsolutePath();
+				String ruta = chooser.getSelectedFile().getAbsolutePath();
 
-	            List<CasoSocial> casos;
+				List<CasoSocial> casos;
 
-	            if ("Administrador".equalsIgnoreCase(rol)
-	                    || "Coordinador".equalsIgnoreCase(rol)) {
+				if ("Administrador".equalsIgnoreCase(rol) || "Coordinador".equalsIgnoreCase(rol)) {
 
-	                casos = casosSocialController.listar();
+					casos = casosSocialController.listar();
 
-	            } else {
+				} else {
 
-	                casos = casosSocialController.buscarPorUsuario(usuarioActual);
-	            }
+					casos = casosSocialController.buscarPorUsuario(usuarioActual);
+				}
 
 				if (casos == null || casos.isEmpty()) {
 

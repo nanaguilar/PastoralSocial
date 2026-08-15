@@ -15,7 +15,7 @@
 		<class>pastoralsocial.modelo.Asistencia</class>
 		<class>pastoralsocial.modelo.Maestro</class>
 		<class>pastoralsocial.modelo.Detalle</class>
-		<class>pastoralsocial.modelo.Bitacora</class>
+		<class>pastoralsocial.modelo.Adendum</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 
 		<properties>

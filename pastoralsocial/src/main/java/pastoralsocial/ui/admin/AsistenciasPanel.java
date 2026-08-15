@@ -591,9 +591,9 @@ public class AsistenciasPanel extends JPanel {
 
 						String nombreCaso = caso.getNumeroFicha() != null ? caso.getNumeroFicha()
 								: "Caso_" + caso.getIdCasoSocial();
-						String rutaPDF = ruta + "/ADENDUM_" + nombreCaso + ".pdf";
+						String rutaPDF = ruta + "/REPORTE_" + nombreCaso + ".pdf";
 						ReporteUtil.generarPDFAsistenciaCaso(caso, rutaPDF);
-						String rutaXLS = ruta + "/ADENDUM_" + nombreCaso + ".xls";
+						String rutaXLS = ruta + "/REPORTE_" + nombreCaso + ".xls";
 						ReporteUtil.generarExcelAsistenciaCaso(caso, rutaXLS);
 
 						generados++;
@@ -609,7 +609,7 @@ public class AsistenciasPanel extends JPanel {
 
 				JOptionPane
 						.showMessageDialog(this,
-								"Reportes de Asistencias (Adendum) generados exitosamente.\n" + generados + " PDF y "
+								"Reportes de Asistencias generados exitosamente.\n" + generados + " PDF y "
 										+ generados + " Excel creados en:\n" + ruta,
 								"Éxito", JOptionPane.INFORMATION_MESSAGE);
 
