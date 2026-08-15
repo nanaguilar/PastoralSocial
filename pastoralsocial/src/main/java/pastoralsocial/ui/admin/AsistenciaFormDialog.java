@@ -54,8 +54,10 @@ public class AsistenciaFormDialog extends JDialog {
 
 	private final CasoSocial casoSocial;
 	private Asistencia asistencia;
+
 	private boolean modoEdicion;
 	private boolean guardado;
+	private boolean hayCambios;
 
 	private JFormattedTextField txtProlongacion1;
 	private JFormattedTextField txtProlongacion2;
@@ -77,6 +79,8 @@ public class AsistenciaFormDialog extends JDialog {
 
 		inicializarInterfaz();
 
+		configurarDeteccionCambios();
+
 		setLocationRelativeTo(parent);
 	}
 
@@ -95,6 +99,8 @@ public class AsistenciaFormDialog extends JDialog {
 		inicializarInterfaz();
 
 		cargarDatos();
+
+		configurarDeteccionCambios();
 
 		setLocationRelativeTo(parent);
 	}
@@ -263,7 +269,8 @@ public class AsistenciaFormDialog extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+
+				intentarCerrar();
 			}
 		});
 
@@ -272,6 +279,15 @@ public class AsistenciaFormDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				guardar();
+			}
+		});
+
+		addWindowListener(new java.awt.event.WindowAdapter() {
+
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+
+				intentarCerrar();
 			}
 		});
 
@@ -379,6 +395,62 @@ public class AsistenciaFormDialog extends JDialog {
 		} catch (ParseException e) {
 
 			return new JFormattedTextField();
+		}
+	}
+
+	private void configurarDeteccionCambios() {
+
+		java.awt.event.KeyAdapter cambioTexto = new java.awt.event.KeyAdapter() {
+
+			@Override
+			public void keyTyped(java.awt.event.KeyEvent e) {
+
+				hayCambios = true;
+			}
+		};
+
+		// FECHA
+		txtFecha.addKeyListener(cambioTexto);
+
+		// DATOS DE LA ASISTENCIA
+		txtModalidad.addKeyListener(cambioTexto);
+		txtFrecuencia.addKeyListener(cambioTexto);
+		txtDuracion.addKeyListener(cambioTexto);
+		txtValor.addKeyListener(cambioTexto);
+		txtObservaciones.addKeyListener(cambioTexto);
+
+		// PROLONGACIONES
+		txtProlongacion1.addKeyListener(cambioTexto);
+		txtProlongacion2.addKeyListener(cambioTexto);
+		txtProlongacion3.addKeyListener(cambioTexto);
+		txtProlongacion4.addKeyListener(cambioTexto);
+		txtProlongacion5.addKeyListener(cambioTexto);
+
+		// TIPO DE ASISTENCIA
+		cmbTipoAsistencia.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				hayCambios = true;
+			}
+		});
+	}
+
+	private void intentarCerrar() {
+
+		if (!hayCambios) {
+
+			dispose();
+			return;
+		}
+
+		int opcion = JOptionPane.showConfirmDialog(this, "Hay cambios sin guardar. ¿Desea salir de todas formas?",
+				"Confirmar salida", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+
+			dispose();
 		}
 	}
 

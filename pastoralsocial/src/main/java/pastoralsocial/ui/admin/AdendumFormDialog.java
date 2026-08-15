@@ -97,9 +97,8 @@ public class AdendumFormDialog extends JDialog {
 	private JComboBox<String> cmbRecomendacion3;
 	private JFormattedTextField txtRecomendacion3Fecha;
 
-	/**
-	 * @wbp.parser.constructor
-	 */
+	private boolean hayCambios;
+
 	public AdendumFormDialog(Window parent, CasoSocial casoSocial) {
 		this(parent, casoSocial, null);
 	}
@@ -117,6 +116,8 @@ public class AdendumFormDialog extends JDialog {
 		if (adendum != null) {
 			cargarDatos();
 		}
+
+		configurarDeteccionCambios();
 	}
 
 	private void inicializarInterfaz() {
@@ -570,12 +571,21 @@ public class AdendumFormDialog extends JDialog {
 		panelContenido.add(btnGuardar);
 
 		// EVENTOS
+		addWindowListener(new java.awt.event.WindowAdapter() {
+
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+
+				intentarCerrar();
+			}
+		});
+
 		btnCancelar.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				dispose();
+				intentarCerrar();
 			}
 		});
 
@@ -596,6 +606,103 @@ public class AdendumFormDialog extends JDialog {
 		getContentPane().setLayout(null);
 		getContentPane().add(scrollPane);
 
+	}
+
+	private void configurarDeteccionCambios() {
+
+		java.awt.event.KeyAdapter cambioTexto = new java.awt.event.KeyAdapter() {
+
+			@Override
+			public void keyTyped(java.awt.event.KeyEvent e) {
+
+				hayCambios = true;
+			}
+		};
+
+		// SERVICIOS PUBLICOS
+		txtElectricidadFecha1.addKeyListener(cambioTexto);
+		txtElectricidadFecha2.addKeyListener(cambioTexto);
+		txtElectricidadFecha3.addKeyListener(cambioTexto);
+
+		txtAguaFecha1.addKeyListener(cambioTexto);
+		txtAguaFecha2.addKeyListener(cambioTexto);
+		txtAguaFecha3.addKeyListener(cambioTexto);
+
+		txtTelefonoFecha1.addKeyListener(cambioTexto);
+		txtTelefonoFecha2.addKeyListener(cambioTexto);
+		txtTelefonoFecha3.addKeyListener(cambioTexto);
+
+		txtInternetFecha1.addKeyListener(cambioTexto);
+		txtInternetFecha2.addKeyListener(cambioTexto);
+		txtInternetFecha3.addKeyListener(cambioTexto);
+
+		txtCableFecha1.addKeyListener(cambioTexto);
+		txtCableFecha2.addKeyListener(cambioTexto);
+		txtCableFecha3.addKeyListener(cambioTexto);
+
+		// GASTOS DE VIVIENDA
+		txtAlquilerFecha1.addKeyListener(cambioTexto);
+		txtAlquilerFecha2.addKeyListener(cambioTexto);
+		txtAlquilerFecha3.addKeyListener(cambioTexto);
+
+		txtAlimentacionFecha1.addKeyListener(cambioTexto);
+		txtAlimentacionFecha2.addKeyListener(cambioTexto);
+		txtAlimentacionFecha3.addKeyListener(cambioTexto);
+
+		// GASTO DE SALUD
+		txtMedicamentoFecha1.addKeyListener(cambioTexto);
+		txtMedicamentoFecha2.addKeyListener(cambioTexto);
+		txtMedicamentoFecha3.addKeyListener(cambioTexto);
+
+		// OTROS GASTOS
+		txtOtroGasto1.addKeyListener(cambioTexto);
+		txtOtroGasto1Fecha1.addKeyListener(cambioTexto);
+		txtOtroGasto1Fecha2.addKeyListener(cambioTexto);
+		txtOtroGasto1Fecha3.addKeyListener(cambioTexto);
+
+		txtOtroGasto2.addKeyListener(cambioTexto);
+		txtOtroGasto2Fecha1.addKeyListener(cambioTexto);
+		txtOtroGasto2Fecha2.addKeyListener(cambioTexto);
+		txtOtroGasto2Fecha3.addKeyListener(cambioTexto);
+
+		// OBSERVACIONES
+		txtObservaciones.addKeyListener(cambioTexto);
+
+		// RECOMENDACIONES
+		txtRecomendacion1Fecha.addKeyListener(cambioTexto);
+		txtRecomendacion2Fecha.addKeyListener(cambioTexto);
+		txtRecomendacion3Fecha.addKeyListener(cambioTexto);
+
+		// COMBOS
+		ActionListener cambioCombo = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				hayCambios = true;
+			}
+		};
+
+		cmbRecomendacion1.addActionListener(cambioCombo);
+		cmbRecomendacion2.addActionListener(cambioCombo);
+		cmbRecomendacion3.addActionListener(cambioCombo);
+	}
+
+	private void intentarCerrar() {
+
+		if (!hayCambios) {
+
+			dispose();
+			return;
+		}
+
+		int opcion = JOptionPane.showConfirmDialog(this, "Hay cambios sin guardar. ¿Desea salir de todas formas?",
+				"Confirmar salida", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+
+			dispose();
+		}
 	}
 
 	private void cargarDatos() {
@@ -840,35 +947,22 @@ public class AdendumFormDialog extends JDialog {
 	// CONVERTIR FECHA OPCIONAL
 	private Date convertirFechaOpcional(JFormattedTextField campo) {
 
+		String texto = campo.getText().trim();
+
+		texto = texto.replace(" ", "");
+
+		if (texto.isEmpty() || !texto.matches(".*\\d.*")) {
+			return null;
+		}
+
 		try {
 
-			campo.commitEdit();
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+			formato.setLenient(false);
 
-			String texto = campo.getText().trim();
+			return formato.parse(texto);
 
-			if (texto.isEmpty() || texto.contains("_")) {
-				return null;
-			}
-
-			String[] partes = texto.split("/");
-
-			if (partes.length != 3) {
-				return null;
-			}
-
-			int dia = Integer.parseInt(partes[0]);
-			int mes = Integer.parseInt(partes[1]);
-			int anio = Integer.parseInt(partes[2]);
-
-			java.util.Calendar calendario = java.util.Calendar.getInstance();
-
-			calendario.setLenient(false);
-			calendario.set(anio, mes - 1, dia, 0, 0, 0);
-			calendario.set(java.util.Calendar.MILLISECOND, 0);
-
-			return calendario.getTime();
-
-		} catch (Exception e) {
+		} catch (ParseException e) {
 
 			throw new IllegalArgumentException(
 					"Una de las fechas ingresadas no es válida. Utilice el formato dd/MM/yyyy.");
