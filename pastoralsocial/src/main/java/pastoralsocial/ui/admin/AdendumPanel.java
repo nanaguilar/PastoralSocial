@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -22,6 +23,7 @@ import pastoralsocial.controller.AdendumController;
 import pastoralsocial.modelo.Adendum;
 import pastoralsocial.modelo.CasoSocial;
 import pastoralsocial.modelo.Usuario;
+import pastoralsocial.util.ReporteUtil;
 
 public class AdendumPanel extends JPanel {
 
@@ -36,6 +38,7 @@ public class AdendumPanel extends JPanel {
 	private JButton btnDetalle;
 	private JButton btnEditar;
 	private JButton btnEliminar;
+	private JButton btnReporte;
 
 	private final AdendumController adendumController;
 	private final CasoSocial casoSocial;
@@ -136,7 +139,7 @@ public class AdendumPanel extends JPanel {
 		btnDetalle.setForeground(new Color(0, 45, 102));
 		btnDetalle.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnDetalle.setFocusPainted(false);
-		btnDetalle.setBounds(280, 505, 140, 40);
+		btnDetalle.setBounds(460, 505, 140, 40);
 		add(btnDetalle);
 
 		// BOTON EDITAR
@@ -144,7 +147,7 @@ public class AdendumPanel extends JPanel {
 		btnEditar.setForeground(new Color(0, 45, 102));
 		btnEditar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnEditar.setFocusPainted(false);
-		btnEditar.setBounds(440, 505, 140, 40);
+		btnEditar.setBounds(610, 505, 140, 40);
 		add(btnEditar);
 
 		// BOTON ELIMINAR
@@ -152,8 +155,16 @@ public class AdendumPanel extends JPanel {
 		btnEliminar.setForeground(new Color(0, 45, 102));
 		btnEliminar.setFont(new Font("SansSerif", Font.BOLD, 13));
 		btnEliminar.setFocusPainted(false);
-		btnEliminar.setBounds(600, 505, 140, 40);
+		btnEliminar.setBounds(760, 505, 140, 40);
 		add(btnEliminar);
+
+		// BOTON GENERAR REPORTES
+		btnReporte = new JButton("Generar reporte");
+		btnReporte.setForeground(new Color(0, 45, 102));
+		btnReporte.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btnReporte.setFocusPainted(false);
+		btnReporte.setBounds(40, 505, 166, 40);
+		add(btnReporte);
 
 		// PERMISOS
 		String rol = "";
@@ -225,6 +236,14 @@ public class AdendumPanel extends JPanel {
 
 				eliminarAdendum();
 			}
+		});
+
+		btnReporte.addActionListener(new ActionListener() {
+
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        generarReporte();
+		    }
 		});
 	}
 
@@ -524,6 +543,45 @@ public class AdendumPanel extends JPanel {
 
 			JOptionPane.showMessageDialog(this, "No fue posible eliminar el adendum.", "Error",
 					JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void generarReporte() {
+
+		Adendum adendum = obtenerAdendumSeleccionado();
+
+		if (adendum == null) {
+			return;
+		}
+
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+
+			try {
+
+				String ruta = chooser.getSelectedFile().getAbsolutePath();
+
+				String nombreAdendum = "ADENDUM_" + adendum.getIdAdendum();
+
+				String rutaPDF = ruta + "/" + nombreAdendum + ".pdf";
+				ReporteUtil.generarPDFAdendum(adendum, rutaPDF);
+
+				String rutaXLS = ruta + "/" + nombreAdendum + ".xls";
+				ReporteUtil.generarExcelAdendum(adendum, rutaXLS);
+
+				JOptionPane.showMessageDialog(this,
+						"Reporte generado exitosamente.\n\nPDF y Excel creados en:\n" + ruta, "Éxito",
+						JOptionPane.INFORMATION_MESSAGE);
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+
+				JOptionPane.showMessageDialog(this, "No fue posible generar el reporte.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 

@@ -5,9 +5,7 @@ import javax.persistence.*;
 /**
  * Entity implementation class for Entity: Detalle
  *
- * Representa un valor especifico dentro de un catalogo (Maestro).
- * Por ejemplo, si el Maestro es "Tipo de Asistencia", un Detalle
- * podria ser "Visita domiciliaria" o "Ayuda economica".
+ * Representa un valor especifico dentro de un catalogo (Maestro)
  */
 @Entity
 @Table(name = "detalle")

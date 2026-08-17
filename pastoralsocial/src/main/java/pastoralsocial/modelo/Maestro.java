@@ -7,9 +7,7 @@ import javax.persistence.*;
 /**
  * Entity implementation class for Entity: Maestro
  *
- * Representa un catalogo del sistema (por ejemplo: "Tipo de Asistencia",
- * "Tipo de Vivienda", "Tenencia de Vivienda", "Condicion de Vivienda").
- * Cada Maestro agrupa sus valores posibles en registros de Detalle.
+ * Representa un catalogo del sistema
  */
 @Entity
 @Table(name = "maestro")

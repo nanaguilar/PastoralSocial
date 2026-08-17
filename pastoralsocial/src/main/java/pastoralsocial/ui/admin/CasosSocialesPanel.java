@@ -202,7 +202,7 @@ public class CasosSocialesPanel extends JPanel {
 
 		Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
 		JDialog dialog = new JDialog(parent, "Expediente digital - " + caso.getNumeroFicha(), true);
-		ExpedientePanel panel = new ExpedientePanel(caso);
+		ExpedientePanel panel = new ExpedientePanel(caso,  usuarioActual);
 
 		dialog.setContentPane(panel);
 		dialog.setSize(950, 750);

@@ -82,13 +82,16 @@ public class CasoSocial {
 	@OneToMany(mappedBy = "casoSocial")
 	private List<IngresoFamiliar> ingresosFamiliares = new ArrayList<>();
 
+	@OneToMany(mappedBy = "casoSocial", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<DocumentoCaso> documentos;
+
 	public CasoSocial() {
 	}
 
-	public CasoSocial(String numeroFicha, Date fechaInicio, Date fechaPrevistaFin, Detalle detalleEstado, String parroquia,
-			String sectorFilial, String provincia, String canton, String distrito, String direccion,
+	public CasoSocial(String numeroFicha, Date fechaInicio, Date fechaPrevistaFin, Detalle detalleEstado,
+			String parroquia, String sectorFilial, String provincia, String canton, String distrito, String direccion,
 			String observaciones, Usuario usuario, Detalle detalleTipoVivienda, Detalle detalleTenenciaVivienda,
-			Detalle detalleCondicionVivienda) {
+			Detalle detalleCondicionVivienda, List<DocumentoCaso> documentos) {
 
 		this.numeroFicha = numeroFicha;
 		this.fechaInicio = fechaInicio;
@@ -106,6 +109,7 @@ public class CasoSocial {
 		this.detalleTipoVivienda = detalleTipoVivienda;
 		this.detalleTenenciaVivienda = detalleTenenciaVivienda;
 		this.detalleCondicionVivienda = detalleCondicionVivienda;
+		this.documentos = documentos;
 	}
 
 	public void agregarIntegrante(IntegranteFamiliar integrante) {
@@ -273,6 +277,14 @@ public class CasoSocial {
 
 	public void setIngresosFamiliares(List<IngresoFamiliar> ingresosFamiliares) {
 		this.ingresosFamiliares = ingresosFamiliares;
+	}
+
+	public List<DocumentoCaso> getDocumentos() {
+		return documentos;
+	}
+
+	public void setDocumentos(List<DocumentoCaso> documentos) {
+		this.documentos = documentos;
 	}
 
 	@Override
